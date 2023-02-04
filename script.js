@@ -1,45 +1,78 @@
-function performUnaryOperation(x, operator) {
-  if (operator === '*' || operator === '/') {
-    throw new Error(`${operationNames[operator]} requires two arguments`);
-  } else {
-    return unaryOperations[operator](x);
+
+class Operator {
+
+  static #unaryOperations = {
+    "+" : x => x.add(),
+    "-" : x => x.subtract(),
+  };
+
+  static #binaryOperations = {
+    "+" : (x, y) => x.add(y),
+    "-" : (x, y) => x.subtract(y),
+    "*" : (x, y) => x.multiply(y),
+    "/" : (x, y) => x.divide(y),
+  };
+  
+  static #operationNames = {
+    "+" : "Addition",
+    "-" : "Subtraction",
+    "*" : "Multiplication",
+    "/" : "Division",
+  };
+
+  static #precedence = {
+    "+" : 1,
+    "-" : 1,
+    "*" : 2,
+    "/" : 2,
+  };
+
+  static #validOperations = ['+', '-', '*', '/'];
+
+  
+  #value;
+
+  constructor(value) {
+    if (!(Operator.#validOperations.includes(value))) {
+      throw new Error(`${value} is not a valid operation`);
+    } else {
+      this.#value = value;
+    }
   }
-}
 
-function performBinaryOperation(x, y, operator) {
-  const xConstructor = x.constructor.name;
-  const yConstructor = y.constructor.name;
-  let xLevel = numberHeirarchy[xConstructor];
-  let yLevel = numberHeirarchy[yConstructor];
-
-  if (xLevel < yLevel) {
-    x = x[`promoteTo${yConstructor}`]();
-  } else if (yLevel < xLevel) {
-    y = y[`promoteTo${xConstructor}`]();
+  performOperation(x, y = undefined) {
+    if (y === undefined) {
+      if (!(this.#hasUnaryOperation())) {
+        throw new Error(`${Operator.#operationNames[this.#value]} requires two arguments`);
+      } else {
+        return Operator.#unaryOperations[this.#value](x);
+      }
+    } else {
+      if (x.getLevel() < y.getLevel()) {
+        x = x[`promoteTo${y.getType()}`]();
+      } else if (y.getLevel() < x.getLevel()) {
+        y = y[`promoteTo${x.getType()}`]();
+      }
+      return Operator.#binaryOperations[this.#value](x, y);
+    }
   }
 
-  return binaryOperations[operator](x,y);
-}
+  isNumber() {
+    return false;
+  }
 
-const numberHeirarchy = {"Integer" : 1, "Rational" : 2, "Real" : 3};
+  isOperator() {
+    return true;
+  }
 
-const unaryOperations = {
-  "+" : x => x.add(),
-  "-" : x => x.subtract(),
-}
+  getPrecedence() {
+    return Operator.#precedence[this.#value];
+  }
 
-const binaryOperations = {
-  "+" : (x, y) => x.add(y),
-  "-" : (x, y) => x.subtract(y),
-  "*" : (x, y) => x.multiply(y),
-  "/" : (x, y) => x.divide(y),
-}
+  #hasUnaryOperation() {
+    return this.#value === '+' || this.#value === '-';
+  }
 
-const operationNames = {
-  "+" : "Addition",
-  "-" : "Subtraction",
-  "*" : "Multiplication",
-  "/" : "Division",
 }
 
 
@@ -102,6 +135,22 @@ class Integer {
 
   toString() {
     return `${this.#value}`;
+  }
+
+  getLevel() {
+    return 1;
+  }
+
+  getType() {
+    return 'Integer';
+  }
+
+  isNumber() {
+    return true;
+  }
+
+  isOperator() {
+    return false;
   }
 
   static #validateArgumentType(that) {
@@ -232,6 +281,22 @@ class Rational {
     else return `${this.#numerator} / ${this.#denominator}`;
   }
 
+  getLevel() {
+    return 2;
+  }
+
+  getType() {
+    return 'Rational';
+  }
+
+  isNumber() {
+    return true;
+  }
+
+  isOperator() {
+    return false;
+  }
+
   #isZero() {
     return this.#numerator === 0;
   }
@@ -310,6 +375,22 @@ class Real {
 
   toString() {
     return this.#value.toString();
+  }
+
+  getLevel() {
+    return 3;
+  }
+
+  getType() {
+    return 'Real';
+  }
+
+  isNumber() {
+    return true;
+  }
+
+  isOperator() {
+    return false;
   }
 
   static #validateArgumentType(that) {
