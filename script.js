@@ -1,3 +1,48 @@
+function performUnaryOperation(x, operator) {
+  if (operator === '*' || operator === '/') {
+    throw new Error(`${operationNames[operator]} requires two arguments`);
+  } else {
+    return unaryOperations[operator](x);
+  }
+}
+
+function performBinaryOperation(x, y, operator) {
+  const xConstructor = x.constructor.name;
+  const yConstructor = y.constructor.name;
+  let xLevel = numberHeirarchy[xConstructor];
+  let yLevel = numberHeirarchy[yConstructor];
+
+  if (xLevel < yLevel) {
+    x = x[`promoteTo${yConstructor}`]();
+  } else if (yLevel < xLevel) {
+    y = y[`promoteTo${xConstructor}`]();
+  }
+
+  return binaryOperations[operator](x,y);
+}
+
+const numberHeirarchy = {"Integer" : 1, "Rational" : 2, "Real" : 3};
+
+const unaryOperations = {
+  "+" : x => x.add(),
+  "-" : x => x.subtract(),
+}
+
+const binaryOperations = {
+  "+" : (x, y) => x.add(y),
+  "-" : (x, y) => x.subtract(y),
+  "*" : (x, y) => x.multiply(y),
+  "/" : (x, y) => x.divide(y),
+}
+
+const operationNames = {
+  "+" : "Addition",
+  "-" : "Subtraction",
+  "*" : "Multiplication",
+  "/" : "Division",
+}
+
+
 class Integer {
 
   #value;
@@ -81,7 +126,7 @@ class Rational {
 
   constructor(numerator, denominator) {
     if ((typeof numerator !== "number") || (typeof denominator !== "number")) {
-      throw new Error("Rational constructor must have number arguments");
+      throw new Error("Rational constructor must have two number arguments");
     }
 
     if (denominator === 0) {
