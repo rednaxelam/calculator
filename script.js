@@ -40,42 +40,6 @@ class TokenList {
     return this;
   }
 
-  goToStart() {
-    this.#currentNode = this.#start;
-
-    return this;
-  }
-
-  getLength() {
-    return this.#length;
-  }
-
-  isNumberToken() {
-    return this.#currentNode.value.isNumber();
-  }
-
-  isOperatorToken() {
-    return this.#currentNode.value.isOperator();
-  }
-
-  getTokenValue() {
-    return this.#currentNode.value;
-  }
-
-  goToNextToken() {
-    if (!this.hasNextToken()) {
-      throw new Error("Out of bounds error");
-    } else {
-      this.#currentNode = this.#currentNode.next;
-    }
-
-    return this;
-  }
-
-  hasNextToken() {
-    return this.#currentNode.next !== null;
-  }
-
   removeCurrentToken() {
     if (this.#length === 1) {
       throw new Error("Can't remove element from TokenList of length 1");
@@ -117,8 +81,52 @@ class TokenList {
     return returnValue;
   }
 
+  goToStart() {
+    this.#currentNode = this.#start;
+
+    return this;
+  }
+
+  goToNextToken() {
+    if (!this.hasNextToken()) {
+      throw new Error("Out of bounds error");
+    } else {
+      this.#currentNode = this.#currentNode.next;
+    }
+
+    return this;
+  }
+
+  hasNextToken() {
+    return this.#currentNode.next !== null;
+  }
+  
   hasNoParentheses() {
     return this.#numParentheses === 0;
+  }
+
+  getLength() {
+    return this.#length;
+  }
+
+  getTokenValue() {
+    return this.#currentNode.value;
+  }
+
+  isNumberToken() {
+    return this.#currentNode.value.isNumber();
+  }
+
+  isOperatorToken() {
+    return this.#currentNode.value.isOperator();
+  }
+
+  isLeftParenthesisToken() {
+    return this.#currentNode.value === '(';
+  }
+
+  isRightParenthesisToken() {
+    return this.#currentNode.value === ')';
   }
 
   // this validates whether the expression stored by the TokenList can be simplified to one number with the aid of simplify
@@ -227,14 +235,6 @@ class TokenList {
     }
 
     return this;
-  }
-
-  isLeftParenthesisToken() {
-    return this.#currentNode.value === '(';
-  }
-
-  isRightParenthesisToken() {
-    return this.#currentNode.value === ')';
   }
 
   toString() {
