@@ -1,4 +1,82 @@
 
+function tokenizeExpression(str) {
+
+  // this helper function takes it for granted that numberStr will only contain numeric characters, and at most one period character
+  function convertNumberStringToNumber(numberStr) {
+    if (!numberStr.includes('.')) {
+      return new Integer(Number(numberStr));
+    } else {
+      if (numberStr.length === 1) {
+        throw new Error(`Invalid number token: .`);
+      } else {
+        return new Real(Number(numberStr));
+      }
+    }
+  }
+
+  const validChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '+', '-', '*', '/', '(', ')']);
+  const numericChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']);
+  const operatorChars = new Set(['+', '-', '*', '/']);
+  const parenthesisChars = new Set(['(', ')']);
+
+  //remove whitespace from string
+  str = str.split(' ').join('');
+  let currentIndex = 0;
+  let endIndex = str.length - 1;
+  //not posstible to have an empty TokenList, so the '(' node is a placeholder to be removed later
+  let tokenList = new TokenList('(');
+  let numberString = '';
+  let dotCounter = 0;
+  let numberStringActive = false;
+
+  while (currentIndex <= endIndex) {
+    const currentChar = str.charAt(currentIndex);
+    
+    if (!validChars.has(currentChar)) {
+      throw new Error(`Invalid token: ${currentChar}`);
+    } 
+    
+    if (!numericChars.has(currentChar)) {
+      if (numberStringActive) {
+        if (dotCounter > 1) {
+          throw new Error(`Invalid token: ${numberString}`)
+        } else {
+          tokenList.append(convertNumberStringToNumber(numberString));
+          numberString = '';
+          dotCounter = 0;
+          numberStringActive = false;
+        }
+      }
+      
+      if (operatorChars.has(currentChar)) {
+        tokenList.append(new Operator(currentChar));
+      } else {
+        tokenList.append(currentChar);
+      }
+
+    } else {
+      numberString += currentChar;
+      numberStringActive = true;
+      if (currentChar === '.') dotCounter++;
+    }
+
+    currentIndex++;
+  }
+
+  if (numberStringActive) {
+    if (dotCounter > 1) {
+      throw new Error(`Invalid token: ${numberString}`)
+    } else {
+      tokenList.append(convertNumberStringToNumber(numberString));
+    }
+  }
+
+  //removing the '(' placeholder mentioned earlier:
+  tokenList.goToStart();
+  tokenList.removeCurrentToken();
+
+  return tokenList;
+}
 
 class TokenList {
 
@@ -97,10 +175,24 @@ class TokenList {
     return this;
   }
 
+  goToBeforeToken() {
+    if (!this.hasBeforeToken()) {
+      throw new Error("Out of bounds error");
+    } else {
+      this.#currentNode = this.#currentNode.before;
+    }
+
+    return this;
+  }
+
+  hasBeforeToken() {
+    return this.#currentNode.before !== null;
+  }
+
   hasNextToken() {
     return this.#currentNode.next !== null;
   }
-  
+
   hasNoParentheses() {
     return this.#numParentheses === 0;
   }
