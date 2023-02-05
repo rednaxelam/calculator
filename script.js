@@ -1,4 +1,273 @@
 
+
+class TokenList {
+
+  #start;
+  #end;
+  #currentNode;
+  #length;
+  #numParentheses = 0;
+
+  constructor(token) {
+    TokenList.#validateToken(token);
+
+    let newNode = new Node();
+    newNode.value = token;
+
+    this.#start = newNode;
+    this.#end = newNode;
+    this.#currentNode = newNode;
+    this.#length = 1;
+    if (TokenList.#isParenthesisToken(token)) {
+      this.#numParentheses++;
+    }
+  }
+
+  append(token) {
+    TokenList.#validateToken(token);
+
+    let newNode = new Node();
+    newNode.value = token;
+    newNode.before = this.#end;
+    
+    this.#end.next = newNode;
+    this.#end = newNode;
+    this.#length++;
+    if (TokenList.#isParenthesisToken(token)) {
+      this.#numParentheses++;
+    }
+
+    return this;
+  }
+
+  goToStart() {
+    this.#currentNode = this.#start;
+
+    return this;
+  }
+
+  getLength() {
+    return this.#length;
+  }
+
+  isNumberToken() {
+    return this.#currentNode.value.isNumber();
+  }
+
+  isOperatorToken() {
+    return this.#currentNode.value.isOperator();
+  }
+
+  getTokenValue() {
+    return this.#currentNode.value;
+  }
+
+  goToNextToken() {
+    if (!this.hasNextToken()) {
+      throw new Error("Out of bounds error");
+    } else {
+      this.#currentNode = this.#currentNode.next;
+    }
+
+    return this;
+  }
+
+  hasNextToken() {
+    return this.#currentNode.next !== null;
+  }
+
+  removeCurrentToken() {
+    if (this.#length === 1) {
+      throw new Error("Can't remove element from TokenList of length 1");
+    }
+    if (TokenList.#isParenthesisToken(this.#currentNode.value)) {
+      this.#numParentheses--;
+    }
+    const previousNode = this.#currentNode.before;
+    const nextNode = this.#currentNode.next;
+    
+    if (this.#currentNode === this.#start) {
+      nextNode.before = null;
+      this.#start = nextNode;
+      this.#currentNode = nextNode;
+    } else if (this.#currentNode === this.#end) {
+      previousNode.next = null;
+      this.#end = previousNode;
+      this.#currentNode = previousNode;
+    } else {
+      previousNode.next = nextNode;
+      nextNode.before = previousNode;
+      this.#currentNode = nextNode;
+    }
+
+    this.#length--;
+
+    return this;
+  }
+
+  popCurrentToken() {
+    if (this.#length === 1) {
+      throw new Error("Can't pop element from TokenList of length 1");
+    }
+
+    const returnValue = this.#currentNode.value;
+    
+    this.removeCurrentToken();
+
+    return returnValue;
+  }
+
+  hasNoParentheses() {
+    return this.#numParentheses === 0;
+  }
+
+  // this validates whether the expression stored by the TokenList can be simplified to one number with the aid of simplify
+  validateExpression() {
+    if (!this.hasNoParentheses()) {
+      throw new Error("validateExpression can only be invoked on TokenLists that have no parentheses");
+    }
+
+    let current = this.#start;
+    let previousTokenWasOperator = false;
+
+    if (current.value instanceof Operator) {
+      if (!current.value.hasUnaryOperation()) {
+        throw new Error("Expression/subexpression can't begin with * or /");
+      } else {
+        previousTokenWasOperator = true;
+      }
+    }
+    
+    current = current.next;
+    while (current !== null) {
+      if (previousTokenWasOperator) {
+        if (current.value.isOperator()) {
+          throw new Error("Operator can't be followed by an operator");
+        } else {
+          previousTokenWasOperator = false;
+        }
+      } else {
+        if (current.value.isNumber()) {
+          throw new Error("Number can't be followed by another number");
+        } else {
+          previousTokenWasOperator = true;
+        }
+      }
+      current = current.next;
+    }
+
+    if (this.#end.value.isOperator()) {
+      if (this.#length === 1) {
+        throw new Error("Operator must have argument(s)");
+      } else {
+        throw new Error("Binary Operator must have two arguments");
+      }
+    }
+
+    return true;
+
+  }
+
+  /* simplify can only be called for TokenLists with no parentheses, and should only be used after testing the TokenList using the 
+  isValidExpression method (it is fine to not perform this check if the list is only modified by simplify after an initial isValidExpression test)*/
+  simplify() {
+
+    if (!this.hasNoParentheses()) {
+      throw new Error("simplify can only be called on TokenLists that have no parentheses")
+    }
+
+    if (this.#length === 1) {
+      if (this.#currentNode.value.isNumber()) {
+        return;
+      } else if (this.#currentNode.value.isOperator()) {
+        throw new Error("Only element in TokenList is an operator");
+      } else {
+        throw new Error("Only element in TokenList is a parenthesis (make sure hasNoParenthesis is working correctly)");
+      }
+    }
+
+    if (!(this.#currentNode.value instanceof Operator)) {
+      throw new Error("simplify can only be called when current token is an operator");
+    } 
+    
+    let previousNode = this.#currentNode.before;
+    let nextNode = this.#currentNode.next;
+
+    if (previousNode === null) {
+      let operand = nextNode.value;
+      let operator = this.#currentNode.value;
+      let result = operator.performOperation(operand);
+
+      this.#currentNode.value = result;
+      this.#currentNode.next = nextNode.next;
+      if (nextNode.next !== null) {
+        nextNode.next.before = this.#currentNode;
+      } else {
+        this.#end = this.#currentNode;
+      }
+
+      this.#length--;
+    } else if (nextNode === null) {
+      throw new Error("Binary operator must take two arguments");
+    } else {
+      let operand1 = previousNode.value;
+      let operand2 = nextNode.value;
+      let operator = this.#currentNode.value;
+      let result = operator.performOperation(operand1, operand2);
+
+      previousNode.value = result;
+      previousNode.next = nextNode.next;
+      if (nextNode.next !== null) {
+        nextNode.next.before = previousNode;
+      } else {
+        this.#end = previousNode;
+      }
+      this.#currentNode = previousNode;
+      this.#length -= 2;
+    }
+
+    return this;
+  }
+
+  isLeftParenthesisToken() {
+    return this.#currentNode.value === '(';
+  }
+
+  isRightParenthesisToken() {
+    return this.#currentNode.value === ')';
+  }
+
+  toString() {
+    let current = this.#start;
+    let str = '[';
+    while (current.next !== null) {
+      str = str + `${current.value}, `;
+      current = current.next;
+    }
+    str = str  + `${current.value}]`;
+    return str;
+  }
+
+  static #validateToken(token) {
+    if (!(token instanceof Operator || token instanceof Integer || token instanceof Rational || token instanceof Real || token === '(' || token === ')')) {
+      throw new Error(`Invalid token supplied to TokenList: ${token}`);
+    }
+  }
+
+  static #isParenthesisToken(token) {
+    return token === '(' || token === ')';
+  }
+
+}
+
+class Node {
+
+  value = null;
+  next = null;
+  before = null;
+
+}
+
 class Operator {
 
   static #unaryOperations = {
@@ -42,7 +311,7 @@ class Operator {
 
   performOperation(x, y = undefined) {
     if (y === undefined) {
-      if (!(this.#hasUnaryOperation())) {
+      if (!(this.hasUnaryOperation())) {
         throw new Error(`${Operator.#operationNames[this.#value]} requires two arguments`);
       } else {
         return Operator.#unaryOperations[this.#value](x);
@@ -69,7 +338,11 @@ class Operator {
     return Operator.#precedence[this.#value];
   }
 
-  #hasUnaryOperation() {
+  toString() {
+    return this.#value;
+  }
+
+  hasUnaryOperation() {
     return this.#value === '+' || this.#value === '-';
   }
 
