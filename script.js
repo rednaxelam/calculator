@@ -104,6 +104,11 @@ function evaluate(expressionString) {
     return tokenList.getTokenValue();
   }
 
+  if (expressionString.length === 0) {
+    throw new Error("Can't evaluate empty expression");
+  }
+
+
   validateCorrectlyParenthesized(expressionString);
   let tokenList = tokenizeExpression(expressionString);
   return evaluateHelper(tokenList);
