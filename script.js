@@ -1,3 +1,114 @@
+function evaluate(expressionString) {
+  function validateCorrectlyParenthesized(expressionStr) {
+    const parenthesisChars = new Set(['(', ')']);
+    let numSurplusLeftParentheses = 0;
+    let previousCharWasLeftParenthesis = false;
+    let currentIndex = 0;
+    let endIndex = expressionStr.length - 1;
+    while (currentIndex <= endIndex) {
+      const currentChar = expressionStr.charAt(currentIndex);
+      if (currentChar === ' ') {
+        
+      } else if (!parenthesisChars.has(currentChar)) {
+        previousCharWasLeftParenthesis = false;
+      } else if (currentChar === '(') {
+        numSurplusLeftParentheses++;
+        previousCharWasLeftParenthesis = true;
+      } else {
+        if (previousCharWasLeftParenthesis) {
+          throw new Error("Empty subexpressions are not permitted");
+        } else {
+          numSurplusLeftParentheses--;
+          previousCharWasLeftParenthesis = false;
+        }
+      }
+      currentIndex++;
+      if (numSurplusLeftParentheses < 0) {
+        throw new Error("Expression not correctly parenthesized");
+      }
+
+    }
+    if (numSurplusLeftParentheses > 0) {
+      throw new Error("Expression not correctly parenthesized");
+    }
+  }
+
+  function evaluateHelper(tokenList) {
+    // first pass through evaluates parenthesized subexpressions. There should be no parentheses in the tokenList in this scope after having done this
+    let numSurplusLeftParentheses = 0;
+    let subexpressionTokenList = null;
+    tokenList.goToStart();
+    while (tokenList.hasNextToken()) {
+      if (tokenList.isLeftParenthesisToken()) {
+        if (numSurplusLeftParentheses === 0) {
+          subexpressionTokenList = new TokenList(tokenList.goToNextToken().popCurrentToken());
+          if (subexpressionTokenList.isLeftParenthesisToken()) numSurplusLeftParentheses++;
+        } else {
+          subexpressionTokenList.append(tokenList.popCurrentToken());
+        }
+        numSurplusLeftParentheses++;
+      } else if (tokenList.isRightParenthesisToken()) {
+        numSurplusLeftParentheses--;
+        if (numSurplusLeftParentheses === 0) {
+          tokenList.removeCurrentToken();
+          tokenList.goToBeforeToken();
+          tokenList.setTokenValue(evaluateHelper(subexpressionTokenList));
+          tokenList.goToNextToken();
+          subexpressionTokenList = null;
+        } else {
+          subexpressionTokenList.append(tokenList.popCurrentToken());
+        }
+      } else {
+        if (numSurplusLeftParentheses > 0) {
+          subexpressionTokenList.append(tokenList.popCurrentToken());
+        } else {
+          tokenList.goToNextToken();
+        }
+      }
+    }
+
+    if (subexpressionTokenList !== null) {
+      tokenList.removeCurrentToken();
+      tokenList.setTokenValue(evaluateHelper(subexpressionTokenList));
+      subexpressionTokenList = null;
+    }
+
+
+    // second pass through evaluates operations of precedence 2 (* and /) from left to right
+    tokenList.goToStart();
+    while(true) {
+      if (tokenList.isOperatorToken() && tokenList.getTokenValue().getPrecedence() === 2) {
+        tokenList.simplify();
+      }
+      if (tokenList.hasNextToken()) {
+        tokenList.goToNextToken();
+      } else {
+        break;
+      }
+    }
+
+    // third pass through evaluates operations of precedence 1 (+ and -) from left to right
+    tokenList.goToStart();
+    while(true) {
+      if (tokenList.isOperatorToken() && tokenList.getTokenValue().getPrecedence() === 1) {
+        tokenList.simplify();
+      }
+      if (tokenList.hasNextToken()) {
+        tokenList.goToNextToken();
+      } else {
+        break;
+      }
+    }
+    
+    return tokenList.getTokenValue();
+  }
+
+  validateCorrectlyParenthesized(expressionString);
+  let tokenList = tokenizeExpression(expressionString);
+  return evaluateHelper(tokenList);
+  
+}
+
 
 function tokenizeExpression(str) {
 
@@ -13,6 +124,7 @@ function tokenizeExpression(str) {
       }
     }
   }
+
 
   const validChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '+', '-', '*', '/', '(', ')']);
   const numericChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']);
@@ -203,6 +315,20 @@ class TokenList {
 
   getTokenValue() {
     return this.#currentNode.value;
+  }
+
+  setTokenValue(token) {
+    TokenList.#validateToken(token);
+    let numParenthesesChange = 0
+    if (TokenList.#isParenthesisToken(token)) {
+      numParenthesesChange++;
+    }
+    if (TokenList.#isParenthesisToken(this.#currentNode.value)) {
+      numParenthesesChange--;
+    }
+    this.#currentNode.value = token;
+    this.#numParentheses += numParenthesesChange;
+    return this;
   }
 
   isNumberToken() {
