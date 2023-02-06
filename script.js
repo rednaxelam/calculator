@@ -73,7 +73,8 @@ function evaluate(expressionString) {
       subexpressionTokenList = null;
     }
 
-
+    // validate expression is correct before simplifying
+    tokenList.validateExpression();
     // second pass through evaluates operations of precedence 2 (* and /) from left to right
     tokenList.goToStart();
     while(true) {
@@ -126,13 +127,11 @@ function tokenizeExpression(str) {
   }
 
 
-  const validChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '+', '-', '*', '/', '(', ')']);
+  const validChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '+', '-', '*', '/', '(', ')', ' ']);
   const numericChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']);
   const operatorChars = new Set(['+', '-', '*', '/']);
   const parenthesisChars = new Set(['(', ')']);
 
-  //remove whitespace from string
-  str = str.split(' ').join('');
   let currentIndex = 0;
   let endIndex = str.length - 1;
   //not posstible to have an empty TokenList, so the '(' node is a placeholder to be removed later
@@ -162,11 +161,11 @@ function tokenizeExpression(str) {
       
       if (operatorChars.has(currentChar)) {
         tokenList.append(new Operator(currentChar));
-      } else {
+      } else if (parenthesisChars.has(currentChar)) {
         tokenList.append(currentChar);
       }
 
-    } else {
+    } else if (numericChars.has(currentChar)) {
       numberString += currentChar;
       numberStringActive = true;
       if (currentChar === '.') dotCounter++;
