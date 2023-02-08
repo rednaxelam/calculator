@@ -9,6 +9,59 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  
+  <div id="calculator-container">
+    <div id="calculator">
+      <div id="display">
+        <input readonly type="text" id="display-input">
+        <div id="display-output"></div>
+      </div>
+      <div id="toolbar">
+        <div id="storage-panel">
+          <button id="store-variable-button" class="small-button">STO</button>
+          <button id="variable-x-button" class="small-button">x</button>
+          <button id="variable-y-button" class="small-button">y</button>
+          <button id="variable-z-button" class="small-button">z</button>
+        </div>
+        <div id="navigation-buttons">
+          <button id="go-left-button">←</button>
+          <div id="navigation-buttons-middle">
+            <button id="go-up-button">↑</button>
+            <button id="go-down-button">↓</button>
+          </div>
+          <button id="go-right-button">→</button>
+        </div>
+        <div id="right-toolbar-panel">
+          <button id="clear-button" class="small-button">C</button>
+          <button id="clear-all-button" class="small-button">CA</button>
+          <button id="backpace-button">BACKSPACE</button>
+        </div>
+      </div>
+      <div id="left-buttons">
+        <button class="input-button">1</button>
+        <button class="input-button">2</button>
+        <button class="input-button">3</button>
+        <button class="input-button">4</button>
+        <button class="input-button">5</button>
+        <button class="input-button">6</button>
+        <button class="input-button">7</button>
+        <button class="input-button">8</button>
+        <button class="input-button">9</button>
+        <button class="input-button">0</button>
+        <button class="input-button">.</button>
+        <button class="input-button">_</button>
+      </div>
+      <div id="right-buttons">
+        <button class="input-button">(</button>
+        <button class="input-button">)</button>
+        <button class="input-button-operator">+</button>
+        <button class="input-button-operator">-</button>
+        <button class="input-button-operator">/</button>
+        <button class="input-button-operator">*</button>
+        <button class="input-button">ANS</button>
+        <button id="evaluate-button">=</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
