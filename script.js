@@ -1,3 +1,117 @@
+class CalcWindowList {
+
+  #start;
+  #current;
+  #end;
+
+  constructor() {
+    let newNode = new Node();
+    newNode.value = new CalcWindow();
+
+    this.#start = newNode;
+    this.#end = newNode;
+    this.#current = newNode;
+  }
+
+  append() {
+    if (!this.#end.value.isFinishedCalcWindow()) throw new Error("Method should not be called if end CalcWindow is unfinished");
+    let newNode = new Node();
+    newNode.value = new CalcWindow();
+    this.#end.next = newNode;
+    newNode.before = this.#end;
+    this.#end = newNode;
+  }
+
+  hasNextCalcWindow() {
+    return this.#end !== this.#current;
+  }
+
+  goToNextCalcWindow() {
+    if (!this.hasNextCalcWindow()) throw new Error("Out of bounds");
+    this.#current = this.#current.next;
+  }
+
+  hasBeforeCalcWindow() {
+    return this.#start !== this.#current;
+  }
+
+  goToBeforeCalcWindow() {
+    if (!this.hasBeforeCalcWindow()) throw new Error("Out of Bounds");
+    this.#current = this.#current.before;
+  }
+
+  goToEndCalcWindow(inputString) {
+    if (typeof inputString !== "string") throw new Error("String Expected");
+    this.#current = this.#end;
+    if (this.#end.value.isFinishedCalcWindow()) throw new Error("Method should not be called if end CalcWindow is finished");
+    this.#current.value.setInputString(inputString);
+  }
+
+  getInputString() {
+    return this.#current.value.getInputString();
+  }
+
+  isFinishedCalcWindow() {
+    return this.#current.value.isFinishedCalcWindow();
+  }
+
+  getOutputValue() {
+    return this.#current.value.getOutputValue();
+  }
+
+  setInputString(inputString) {
+    this.#current.value.setInputString(inputString);
+  }
+
+  setIsFinishedCalcWindow(isFinished) {
+    this.#current.value.setIsFinishedCalcWindow(isFinished);
+  }
+
+  setOutputValue(num) {
+    this.#current.value.setOutputValue(num);
+  }
+}
+
+class CalcWindow {
+
+  #inputString = '';
+  #isFinishedCalcWindow = false;
+  #outputValue = null;
+
+  setInputString(inputString) {
+    if (this.isFinishedCalcWindow()) throw new Error("Can't set input for finished CalcWindow");
+    if (typeof inputString !== "string") throw new Error("String value expected");
+    this.#inputString = inputString;
+    return this;
+  }
+
+  getInputString() {
+    return this.#inputString;
+  }
+
+  setIsFinishedCalcWindow(isFinished) {
+    if (typeof isFinished !== "boolean") throw new Error("Boolean value expected");
+    if (this.isFinishedCalcWindow()) throw new Error("Can't set this property after CalcWindow has been finished");
+    this.#isFinishedCalcWindow = isFinished;
+    return this;
+  }
+
+  isFinishedCalcWindow() {
+    return this.#isFinishedCalcWindow;
+  }
+
+  setOutputValue(num) {
+    if (this.isFinishedCalcWindow()) throw new Error("Can't set output for finished CalcWindow");
+    if (!num.isNumber()) throw new Error("Integer, Rational, or Real expected");
+    this.#outputValue = num;
+    return this;
+  }
+
+  getOutputValue() {
+    return this.#outputValue;
+  }
+}
+
 function evaluate(expressionString) {
   function validateCorrectlyParenthesized(expressionStr) {
     const parenthesisChars = new Set(['(', ')']);
