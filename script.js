@@ -135,6 +135,39 @@ class Calculator {
     }
   }
 
+  hasBeforeCalcWindow() {
+    return this.#calcWindowList.hasBeforeCalcWindow();
+  }
+
+  goToBeforeCalcWindow() {
+    if (this.hasBeforeCalcWindow()) {
+      this.#calcWindowList.goToBeforeCalcWindow();
+      this.makeInputDisplayReadOnly();
+      this.#inputDisplay.value = this.#calcWindowList.getInputString();
+      this.setOutputDisplay(`${this.#calcWindowList.getOutputValue()}`);
+    }
+  }
+
+  hasNextCalcWindow() {
+    return this.#calcWindowList.hasNextCalcWindow();
+  }
+
+  goToNextCalcWindow() {
+    if (this.hasNextCalcWindow()) {
+      this.#calcWindowList.goToNextCalcWindow();
+      if (!this.#calcWindowList.isFinishedCalcWindow()) {
+        this.clearOutputDisplay();
+        this.makeInputDisplayEditable();
+        this.#inputDisplay.value = this.#calcWindowList.getInputString();
+        this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length, this.#inputDisplay.value.length);
+      } else {
+        this.makeInputDisplayReadOnly();
+        this.#inputDisplay.value = this.#calcWindowList.getInputString();
+        this.setOutputDisplay(`${this.#calcWindowList.getOutputValue()}`);
+      }
+    }
+  }
+
 }
 
 class CalcWindowList {
