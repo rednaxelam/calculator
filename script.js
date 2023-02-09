@@ -1,3 +1,4 @@
+
 function initializePage() {
   
 }
@@ -13,56 +14,126 @@ class Calculator {
   #outputDisplay = document.querySelector("#display-output");
 
   addInput(input) {
-    let insertionPoint = this.#inputDisplay.selectionStart;
-    let oldInputString = this.#inputDisplay.value;
-    let newInputString = '';
-    if (insertionPoint === 0) {
-      newInputString = input + oldInputString;
-      this.#inputDisplay.value = newInputString;
-      this.#inputDisplay.setSelectionRange(input.length, input.length);
-    } else if (insertionPoint === oldInputString.length) {
-      newInputString = oldInputString + input;
-      this.#inputDisplay.value = newInputString;
-      this.#inputDisplay.setSelectionRange(oldInputString.length + input.length, oldInputString.length + input.length);
+    if (!this.#calcWindowList.isFinishedCalcWindow()) {
+      let insertionPoint = this.#inputDisplay.selectionStart;
+      let oldInputString = this.#inputDisplay.value;
+      let newInputString = '';
+      if (insertionPoint === 0) {
+        newInputString = input + oldInputString;
+        this.#inputDisplay.value = newInputString;
+        this.#inputDisplay.setSelectionRange(input.length, input.length);
+      } else if (insertionPoint === oldInputString.length) {
+        newInputString = oldInputString + input;
+        this.#inputDisplay.value = newInputString;
+        this.#inputDisplay.setSelectionRange(oldInputString.length + input.length, oldInputString.length + input.length);
+      } else {
+        newInputString = oldInputString.substring(0, insertionPoint) + input + oldInputString.substring(insertionPoint, oldInputString.length);
+        this.#inputDisplay.value = newInputString;
+        this.#inputDisplay.setSelectionRange(insertionPoint + input.length, insertionPoint + input.length);
+      }
+    } else if (['+','-','*','/'].includes(input)) {
+      this.#calcWindowList.goToEndCalcWindow(`ans${input}`);
+      this.clearOutputDisplay();
+      this.makeInputDisplayEditable();
+      this.#inputDisplay.value = this.#calcWindowList.getInputString();
+      this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length, this.#inputDisplay.value.length);
     } else {
-      newInputString = oldInputString.substring(0, insertionPoint) + input + oldInputString.substring(insertionPoint, oldInputString.length);
-      this.#inputDisplay.value = newInputString;
-      this.#inputDisplay.setSelectionRange(insertionPoint + input.length, insertionPoint + input.length);
+      this.#calcWindowList.goToEndCalcWindow(`${input}`);
+      this.clearOutputDisplay();
+      this.makeInputDisplayEditable();
+      this.#inputDisplay.value = this.#calcWindowList.getInputString();
+      this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length, this.#inputDisplay.value.length);
     }
   }
 
   // add support for ans later
   removeInput() {
-    let deletionPoint = this.#inputDisplay.selectionStart;
-    let oldInputString = this.#inputDisplay.value;
-    let newInputString = '';
-    if (deletionPoint === 0) {
+    if (!this.#calcWindowList.isFinishedCalcWindow()) {
+      let deletionPoint = this.#inputDisplay.selectionStart;
+      let oldInputString = this.#inputDisplay.value;
+      let newInputString = '';
+      if (deletionPoint === 0) {
 
-    } else if (deletionPoint === oldInputString.length) {
-      newInputString = oldInputString.substring(0, oldInputString.length - 1);
-      this.#inputDisplay.value = newInputString;
-      this.#inputDisplay.setSelectionRange(newInputString.length, newInputString.length)
-    } else {
-      newInputString = oldInputString.substring(0, deletionPoint - 1) + oldInputString.substring(deletionPoint, oldInputString.length);
-      this.#inputDisplay.value = newInputString;
-      this.#inputDisplay.setSelectionRange(deletionPoint - 1, deletionPoint - 1);
+      } else if (deletionPoint === oldInputString.length) {
+        newInputString = oldInputString.substring(0, oldInputString.length - 1);
+        this.#inputDisplay.value = newInputString;
+        this.#inputDisplay.setSelectionRange(newInputString.length, newInputString.length)
+      } else {
+        newInputString = oldInputString.substring(0, deletionPoint - 1) + oldInputString.substring(deletionPoint, oldInputString.length);
+        this.#inputDisplay.value = newInputString;
+        this.#inputDisplay.setSelectionRange(deletionPoint - 1, deletionPoint - 1);
+      }
     }
   }
 
   goLeft() {
-    let currentSelectionIndex = this.#inputDisplay.selectionStart;
-    if (currentSelectionIndex !== 0) {
-      this.#inputDisplay.setSelectionRange(currentSelectionIndex - 1, currentSelectionIndex - 1);
+    if (!this.#calcWindowList.isFinishedCalcWindow()) {
+      let currentSelectionIndex = this.#inputDisplay.selectionStart;
+      if (currentSelectionIndex !== 0) {
+        this.#inputDisplay.setSelectionRange(currentSelectionIndex - 1, currentSelectionIndex - 1);
+      }
+    } else {
+      this.#calcWindowList.goToEndCalcWindow(this.#inputDisplay.value);
+      this.clearOutputDisplay();
+      this.makeInputDisplayEditable();
+      this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length - 1, this.#inputDisplay.value.length - 1);
     }
   }
 
   goRight() {
-    let currentSelectionIndex = this.#inputDisplay.selectionStart;
-    if (currentSelectionIndex !== this.#inputDisplay.value.length) {
-      this.#inputDisplay.setSelectionRange(currentSelectionIndex + 1, currentSelectionIndex + 1);
+    if (!this.#calcWindowList.isFinishedCalcWindow()) {
+      let currentSelectionIndex = this.#inputDisplay.selectionStart;
+      if (currentSelectionIndex !== this.#inputDisplay.value.length) {
+        this.#inputDisplay.setSelectionRange(currentSelectionIndex + 1, currentSelectionIndex + 1);
+      }
+    } else {
+      this.#calcWindowList.goToEndCalcWindow(this.#inputDisplay.value);
+      this.clearOutputDisplay();
+      this.makeInputDisplayEditable();
+      this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length, this.#inputDisplay.value.length);
     }
   }
 
+  evaluateInput() {
+    if (this.#calcWindowList.isFinishedCalcWindow()) return;
+
+    let result = null;
+    try {
+      result = evaluate(this.#inputDisplay.value);
+      this.#calcWindowList.setOutputValue(result);
+      this.#calcWindowList.setInputString(this.#inputDisplay.value);
+      this.#calcWindowList.setIsFinishedCalcWindow(true);
+      this.#calcWindowList.append();
+      this.makeInputDisplayReadOnly();
+    } catch (error) {
+      result = error.message;
+    }
+    this.setOutputDisplay(`${result}`);
+  }
+
+  clearOutputDisplay() {
+    this.#outputDisplay.removeChild(this.#outputDisplay.firstElementChild);
+    this.#outputDisplay.appendChild(createElement('p'));
+  }
+
+  setOutputDisplay(outputString) {
+    this.#outputDisplay.removeChild(this.#outputDisplay.firstElementChild);
+    let resultElement = createElement('p');
+    resultElement.textContent = outputString;
+    this.#outputDisplay.appendChild(resultElement);
+  }
+
+  makeInputDisplayReadOnly() {
+    if (!this.#inputDisplay.hasAttribute('readonly')) {
+      this.#inputDisplay.setAttribute('readonly', true);
+    }
+  }
+
+  makeInputDisplayEditable() {
+    if (this.#inputDisplay.hasAttribute('readonly')) {
+      this.#inputDisplay.removeAttribute('readonly');
+    }
+  }
 
 }
 
@@ -1081,4 +1152,19 @@ class Real {
       throw new Error("method must have an argument")
     }
   }
+}
+
+function createElement(type, attributes = {}) {
+  const element = document.createElement(type);
+  for (const key in attributes) {
+    if (key === "class") {
+        const classArray = attributes["class"];
+        for (let i = 0; i < classArray.length; i++) {
+          element.classList.add(classArray[i]);
+        }
+    } else {
+      element.setAttribute(key, attributes[key]);
+    }
+  }
+  return element;
 }
