@@ -1,3 +1,71 @@
+function initializePage() {
+  
+}
+
+class Calculator {
+
+  #calcWindowList = new CalcWindowList();
+  #ans = null;
+  #x = null;
+  #y = null;
+  #z = null;
+  #inputDisplay = document.querySelector("#display-input");
+  #outputDisplay = document.querySelector("#display-output");
+
+  addInput(input) {
+    let insertionPoint = this.#inputDisplay.selectionStart;
+    let oldInputString = this.#inputDisplay.value;
+    let newInputString = '';
+    if (insertionPoint === 0) {
+      newInputString = input + oldInputString;
+      this.#inputDisplay.value = newInputString;
+      this.#inputDisplay.setSelectionRange(input.length, input.length);
+    } else if (insertionPoint === oldInputString.length) {
+      newInputString = oldInputString + input;
+      this.#inputDisplay.value = newInputString;
+      this.#inputDisplay.setSelectionRange(oldInputString.length + input.length, oldInputString.length + input.length);
+    } else {
+      newInputString = oldInputString.substring(0, insertionPoint) + input + oldInputString.substring(insertionPoint, oldInputString.length);
+      this.#inputDisplay.value = newInputString;
+      this.#inputDisplay.setSelectionRange(insertionPoint + input.length, insertionPoint + input.length);
+    }
+  }
+
+  // add support for ans later
+  removeInput() {
+    let deletionPoint = this.#inputDisplay.selectionStart;
+    let oldInputString = this.#inputDisplay.value;
+    let newInputString = '';
+    if (deletionPoint === 0) {
+
+    } else if (deletionPoint === oldInputString.length) {
+      newInputString = oldInputString.substring(0, oldInputString.length - 1);
+      this.#inputDisplay.value = newInputString;
+      this.#inputDisplay.setSelectionRange(newInputString.length, newInputString.length)
+    } else {
+      newInputString = oldInputString.substring(0, deletionPoint - 1) + oldInputString.substring(deletionPoint, oldInputString.length);
+      this.#inputDisplay.value = newInputString;
+      this.#inputDisplay.setSelectionRange(deletionPoint - 1, deletionPoint - 1);
+    }
+  }
+
+  goLeft() {
+    let currentSelectionIndex = this.#inputDisplay.selectionStart;
+    if (currentSelectionIndex !== 0) {
+      this.#inputDisplay.setSelectionRange(currentSelectionIndex - 1, currentSelectionIndex - 1);
+    }
+  }
+
+  goRight() {
+    let currentSelectionIndex = this.#inputDisplay.selectionStart;
+    if (currentSelectionIndex !== this.#inputDisplay.value.length) {
+      this.#inputDisplay.setSelectionRange(currentSelectionIndex + 1, currentSelectionIndex + 1);
+    }
+  }
+
+
+}
+
 class CalcWindowList {
 
   #start;
