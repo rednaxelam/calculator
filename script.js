@@ -168,6 +168,30 @@ class Calculator {
     }
   }
 
+  clear() {
+    if (this.#calcWindowList.isFinishedCalcWindow()) {
+      this.#calcWindowList.goToEndCalcWindow('');
+      this.makeInputDisplayEditable();
+    } else {
+      this.#calcWindowList.setInputString('');
+    }
+    this.clearOutputDisplay();
+    this.#inputDisplay.value = '';
+    this.#inputDisplay.setSelectionRange(0, 0);
+  }
+
+  clearAll() {
+    this.#calcWindowList = new CalcWindowList();
+    this.#ans = null;
+    this.#x = null;
+    this.#y = null;
+    this.#z = null;
+    this.clearOutputDisplay();
+    this.makeInputDisplayEditable();
+    this.#inputDisplay.value = '';
+    this.#inputDisplay.setSelectionRange(0, 0);
+  }
+
 }
 
 class CalcWindowList {
