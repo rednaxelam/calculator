@@ -1,9 +1,7 @@
 
-function initializePage() {
-  
-}
-
 class Calculator {
+
+  static #validInputChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '+', '-', '*', '/', '(', ')', ' ', 'a', 'x', 'y', 'z']);
 
   #calcWindowList = new CalcWindowList();
   #ans = null;
@@ -166,6 +164,14 @@ class Calculator {
         this.setOutputDisplay(`${this.#calcWindowList.getOutputValue()}`);
       }
     }
+  }
+
+  isFinishedCalcWindow() {
+    return this.#calcWindowList.isFinishedCalcWindow();
+  }
+
+  isValidInputChar(char) {
+    return Calculator.#validInputChars.has(char);
   }
 
   clear() {
@@ -1224,4 +1230,32 @@ function createElement(type, attributes = {}) {
     }
   }
   return element;
+}
+
+
+let calculator = new Calculator();
+initializePage();
+
+function initializePage() {
+  let inputButtons = document.querySelectorAll('.input-button');
+  for (let i = 0; i < inputButtons.length; i++) {
+    const currentButton = inputButtons.item(i);
+    currentButton.addEventListener('click', () => calculator.addInput(currentButton.textContent));
+  }
+  document.querySelector('#backpace-button').addEventListener('click', () => calculator.removeInput());
+  document.querySelector('#clear-button').addEventListener('click', () => calculator.clear());
+  document.querySelector('#clear-all-button').addEventListener('click', () => calculator.clearAll());
+  document.querySelector('#evaluate-button').addEventListener('click', () => calculator.evaluateInput());
+  // document.querySelector('#display-input').addEventListener('change', () => calculator.evaluateInput());
+  document.addEventListener('keyup', (e) => {if (e.key === 'Enter') calculator.evaluateInput()});
+  document.querySelector('#go-left-button').addEventListener('click', () => calculator.goLeft());
+  document.addEventListener('keyup', (e) => {if (e.key === 'ArrowLeft' && calculator.isFinishedCalcWindow()) calculator.goLeft()});
+  document.querySelector('#go-up-button').addEventListener('click', () => calculator.goToBeforeCalcWindow());
+  document.addEventListener('keyup', (e) => {if (e.key === 'ArrowUp') calculator.goToBeforeCalcWindow()});
+  document.querySelector('#go-down-button').addEventListener('click', () => calculator.goToNextCalcWindow());
+  document.addEventListener('keyup', (e) => {if (e.key === 'ArrowDown') calculator.goToNextCalcWindow()});
+  document.querySelector('#go-right-button').addEventListener('click', () => calculator.goRight());
+  document.addEventListener('keyup', (e) => {if (e.key === 'ArrowRight' && calculator.isFinishedCalcWindow()) calculator.goRight()});
+  document.addEventListener('keydown', (e) => {if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ') e.preventDefault()});
+  document.addEventListener('keydown', (e) => {if (calculator.isValidInputChar(e.key) && calculator.isFinishedCalcWindow()) {e.preventDefault(); calculator.addInput(e.key);}});
 }
