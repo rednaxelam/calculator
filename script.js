@@ -1334,7 +1334,8 @@ function initializePage() {
   let inputButtons = document.querySelectorAll('.input-button');
   for (let i = 0; i < inputButtons.length; i++) {
     const currentButton = inputButtons.item(i);
-    currentButton.addEventListener('click', () => calculator.addInput(currentButton.textContent));
+    const inputValue = currentButton.getAttribute('data-value');
+    currentButton.addEventListener('click', () => calculator.addInput(inputValue));
   }
   document.querySelector('#backpace-button').addEventListener('click', () => calculator.removeInput());
   document.querySelector('#clear-button').addEventListener('click', () => calculator.clear());
