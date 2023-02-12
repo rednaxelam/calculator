@@ -38,3 +38,17 @@ body {
 #display-output {
   flex: 1 1 120px;
 }
+
+.storage-active {
+  background-color: blue;
+  color: white;
+}
+
+.storage-inactive {
+  background-color: lightgrey;
+  color: black;
+}
+
+.storage-disabled {
+  background-color: rgba(0, 0, 0, 0.1);
+}

@@ -1,13 +1,15 @@
 
 class Calculator {
 
-  static #validInputChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '+', '-', '*', '/', '(', ')', ' ', 'a', 'x', 'y', 'z']);
+  static #validInputChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '+', '-', '*', '/', '(', ')', ' ']);
+  static #validVariableChars = ['x', 'y', 'z', 'X', 'Y', 'Z'];
 
   #calcWindowList = new CalcWindowList();
   #ans = null;
   #x = null;
   #y = null;
   #z = null;
+  #storageEnabled = false;
   #inputDisplay = document.querySelector("#display-input");
   #outputDisplay = document.querySelector("#display-output");
 
@@ -35,12 +37,14 @@ class Calculator {
       this.makeInputDisplayEditable();
       this.#inputDisplay.value = this.#calcWindowList.getInputString();
       this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length, this.#inputDisplay.value.length);
+      this.disableStorage();
     } else {
       this.#calcWindowList.goToEndCalcWindow(`${input}`);
       this.clearOutputDisplay();
       this.makeInputDisplayEditable();
       this.#inputDisplay.value = this.#calcWindowList.getInputString();
       this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length, this.#inputDisplay.value.length);
+      this.disableStorage();
     }
   }
 
@@ -75,6 +79,7 @@ class Calculator {
       this.clearOutputDisplay();
       this.makeInputDisplayEditable();
       this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length - 1, this.#inputDisplay.value.length - 1);
+      this.disableStorage();
     }
   }
 
@@ -89,6 +94,7 @@ class Calculator {
       this.clearOutputDisplay();
       this.makeInputDisplayEditable();
       this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length, this.#inputDisplay.value.length);
+      this.disableStorage();
     }
   }
 
@@ -96,13 +102,26 @@ class Calculator {
     if (this.#calcWindowList.isFinishedCalcWindow()) return;
 
     let result = null;
+    let inputString = this.#inputDisplay.value;
     try {
-      result = evaluate(this.#inputDisplay.value);
+      for (let i = 0; i < Calculator.#validVariableChars.length; i++) {
+        let char = Calculator.#validVariableChars[i];
+        if (inputString.includes(char)) {
+          if (this[`#${char.toLowerCase()}`] === null) {
+            throw new Error(`Variable ${char} does not store a value`);
+          } else {
+            const replaceWith = '(' + (this[`#${char.toLowerCase()}`].toString()) + ')';
+            inputString = inputString.replaceAll(char, replaceWith);
+          }
+        }
+      }
+      result = evaluate(inputString);
       this.#calcWindowList.setOutputValue(result);
       this.#calcWindowList.setInputString(this.#inputDisplay.value);
       this.#calcWindowList.setIsFinishedCalcWindow(true);
       this.#calcWindowList.append();
       this.makeInputDisplayReadOnly();
+      this.disableStorage();
     } catch (error) {
       result = error.message;
     }
@@ -110,7 +129,9 @@ class Calculator {
   }
 
   clearOutputDisplay() {
-    this.#outputDisplay.removeChild(this.#outputDisplay.firstElementChild);
+    while (this.#outputDisplay.hasChildNodes()) {
+      this.#outputDisplay.removeChild(this.#outputDisplay.firstChild);
+    }
     this.#outputDisplay.appendChild(createElement('p'));
   }
 
@@ -143,6 +164,7 @@ class Calculator {
       this.makeInputDisplayReadOnly();
       this.#inputDisplay.value = this.#calcWindowList.getInputString();
       this.setOutputDisplay(`${this.#calcWindowList.getOutputValue()}`);
+      this.disableStorage();
     }
   }
 
@@ -153,6 +175,7 @@ class Calculator {
   goToNextCalcWindow() {
     if (this.hasNextCalcWindow()) {
       this.#calcWindowList.goToNextCalcWindow();
+      this.disableStorage();
       if (!this.#calcWindowList.isFinishedCalcWindow()) {
         this.clearOutputDisplay();
         this.makeInputDisplayEditable();
@@ -178,6 +201,7 @@ class Calculator {
     if (this.#calcWindowList.isFinishedCalcWindow()) {
       this.#calcWindowList.goToEndCalcWindow('');
       this.makeInputDisplayEditable();
+      this.disableStorage();
     } else {
       this.#calcWindowList.setInputString('');
     }
@@ -196,8 +220,53 @@ class Calculator {
     this.makeInputDisplayEditable();
     this.#inputDisplay.value = '';
     this.#inputDisplay.setSelectionRange(0, 0);
+    this.disableStorage();
   }
 
+  isStorageEnabled() {
+    return this.#storageEnabled;
+  }
+
+  toggleStorage() {
+    if (!this.isFinishedCalcWindow()) {
+      return;
+    } else if (this.#storageEnabled) {
+      this.#storageEnabled = false;
+      document.querySelector('#store-variable-button').classList.remove('storage-active');
+      document.querySelector('#store-variable-button').classList.add('storage-inactive');
+    } else {
+      this.#storageEnabled = true;
+      document.querySelector('#store-variable-button').classList.remove('storage-inactive');
+      document.querySelector('#store-variable-button').classList.add('storage-active');
+    }
+  }
+
+  disableStorage() {
+    this.#storageEnabled = false;
+    document.querySelector('#store-variable-button').classList.remove('storage-active');
+    if (this.isFinishedCalcWindow()) {
+      document.querySelector('#store-variable-button').classList.remove('storage-disabled');
+      document.querySelector('#store-variable-button').classList.add('storage-inactive');
+    } else {
+      document.querySelector('#store-variable-button').classList.remove('storage-inactive');
+      document.querySelector('#store-variable-button').classList.add('storage-disabled');
+    }
+  }
+
+  storeInVariable(varChar) {
+    this[`#${varChar}`.toLowerCase()] = this.#calcWindowList.getOutputValue();
+    let assignmentText = createElement('p');
+    assignmentText.textContent = `${varChar} = `;
+    this.#outputDisplay.insertBefore(assignmentText, this.#outputDisplay.firstElementChild);
+  }
+
+  useVariable(varChar) {
+    if (this.#storageEnabled) {
+      this.storeInVariable(varChar);
+    } else {
+      this.addInput(varChar);
+    }
+  }
 }
 
 class CalcWindowList {
@@ -436,20 +505,41 @@ function tokenizeExpression(str) {
 
   // this helper function takes it for granted that numberStr will only contain numeric characters, and at most one period character
   function convertNumberStringToNumber(numberStr) {
-    if (!numberStr.includes('.')) {
+    if (!(numberStr.includes('.') || includesNumericExtraChar(numberStr))) {
       return new Integer(Number(numberStr));
     } else {
       if (numberStr.length === 1) {
-        throw new Error(`Invalid number token: .`);
+        throw new Error(`Invalid number token: ${numberStr}`);
+      } else if (numberStr.includes('e') || numberStr.includes('+')) {
+        if (!numberStr.includes('e+')) {
+          throw new Error(`Invalid number token: ${numberStr}`);
+        }
+        let numberComponents = numberStr.split('e+');
+        if (numberComponents.length !== 2) {
+          throw new Error(`Invalid number token: ${numberStr}`);
+        } else if (numberComponents[0].length === 0 || numberComponents[0].length === 0) {
+          throw new Error(`Invalid number token: ${numberStr}`);
+        } else if (includesNumericExtraChar(numberComponents[0]) || includesNumericExtraChar(numberComponents[1])) {
+          throw new Error(`Invalid number token: ${numberStr}`);
+        } else if (numberComponents[0].length === 1 && numberComponents[0].includes('.')) {
+          throw new Error(`Invalid number token: ${numberStr}`);
+        } else if (numberComponents[1].includes('.')) {
+          throw new Error(`Invalid number token: ${numberStr}`);
+        }
+        return new Real(Number(numberStr));
       } else {
         return new Real(Number(numberStr));
       }
     }
   }
 
+  function includesNumericExtraChar(numberStr) {
+    return numberStr.includes('e') || numberStr.includes('+');
+  }
 
-  const validChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '+', '-', '*', '/', '(', ')', ' ']);
+  const validChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '+', '-', '*', '/', '(', ')', ' ', 'e']);
   const numericChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']);
+  const numericExtraChars = new Set(['e', '+']);
   const operatorChars = new Set(['+', '-', '*', '/']);
   const parenthesisChars = new Set(['(', ')']);
 
@@ -470,7 +560,9 @@ function tokenizeExpression(str) {
     
     if (!numericChars.has(currentChar)) {
       if (numberStringActive) {
-        if (dotCounter > 1) {
+        if (numericExtraChars.has(currentChar)) {
+          numberString += currentChar;
+        } else if (dotCounter > 1) {
           throw new Error(`Invalid token: ${numberString}`)
         } else {
           tokenList.append(convertNumberStringToNumber(numberString));
@@ -478,6 +570,8 @@ function tokenizeExpression(str) {
           dotCounter = 0;
           numberStringActive = false;
         }
+      } else if (currentChar === 'e') {
+        throw new Error(`Invalid token: ${currentChar}`);
       }
       
       if (operatorChars.has(currentChar)) {
@@ -1256,6 +1350,15 @@ function initializePage() {
   document.addEventListener('keyup', (e) => {if (e.key === 'ArrowDown') calculator.goToNextCalcWindow()});
   document.querySelector('#go-right-button').addEventListener('click', () => calculator.goRight());
   document.addEventListener('keyup', (e) => {if (e.key === 'ArrowRight' && calculator.isFinishedCalcWindow()) calculator.goRight()});
-  document.addEventListener('keydown', (e) => {if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ') e.preventDefault()});
+  document.addEventListener('keydown', (e) => {if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault()});
   document.addEventListener('keydown', (e) => {if (calculator.isValidInputChar(e.key) && calculator.isFinishedCalcWindow()) {e.preventDefault(); calculator.addInput(e.key);}});
+  document.querySelector('#store-variable-button').addEventListener('click', () => calculator.toggleStorage());
+  document.addEventListener('keyup', (e) => {if ((e.key === 'S' || e.key === 's') && calculator.isFinishedCalcWindow()) {e.preventDefault(); calculator.toggleStorage();}});
+  let variableButtons = document.querySelectorAll('.variable-button');
+  for (let i = 0; i < variableButtons.length; i++) {
+    const current = variableButtons.item(i);
+    const variableLetter = current.getAttribute('data-value');
+    current.addEventListener('click', () => calculator.useVariable(variableLetter));
+    document.addEventListener('keydown', (e) => {if (e.key === variableLetter.toUpperCase() || e.key === variableLetter.toLowerCase()) {e.preventDefault(); calculator.useVariable(variableLetter);}});
+  }
 }
