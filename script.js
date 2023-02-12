@@ -32,7 +32,7 @@ class Calculator {
         this.#inputDisplay.setSelectionRange(insertionPoint + input.length, insertionPoint + input.length);
       }
     } else if (['+','-','*','/'].includes(input)) {
-      this.#calcWindowList.goToEndCalcWindow(`ans${input}`);
+      this.#calcWindowList.goToEndCalcWindow(`ANS${input}`);
       this.clearOutputDisplay();
       this.makeInputDisplayEditable();
       this.#inputDisplay.value = this.#calcWindowList.getInputString();
@@ -57,13 +57,35 @@ class Calculator {
       if (deletionPoint === 0) {
 
       } else if (deletionPoint === oldInputString.length) {
-        newInputString = oldInputString.substring(0, oldInputString.length - 1);
+        const currentChar = oldInputString.charAt(oldInputString.length - 1);
+        if (currentChar === 'S' || currentChar === 's') {
+          if (oldInputString.length >= 3 && oldInputString.substring(oldInputString.length - 3, oldInputString.length).toLowerCase() === 'ans') {
+            newInputString = oldInputString.substring(0, oldInputString.length - 3);
+          } else {
+            newInputString = oldInputString.substring(0, oldInputString.length - 1);
+          }
+        } else {
+          newInputString = oldInputString.substring(0, oldInputString.length - 1);
+        }
         this.#inputDisplay.value = newInputString;
-        this.#inputDisplay.setSelectionRange(newInputString.length, newInputString.length)
+        this.#inputDisplay.setSelectionRange(newInputString.length, newInputString.length);
       } else {
-        newInputString = oldInputString.substring(0, deletionPoint - 1) + oldInputString.substring(deletionPoint, oldInputString.length);
-        this.#inputDisplay.value = newInputString;
-        this.#inputDisplay.setSelectionRange(deletionPoint - 1, deletionPoint - 1);
+        const currentChar = oldInputString.charAt(deletionPoint - 1);
+        if (currentChar === 'S' || currentChar === 's') {
+          if (deletionPoint >= 3 && oldInputString.substring(deletionPoint - 3, deletionPoint).toLowerCase() === 'ans') {
+            newInputString = oldInputString.substring(0, deletionPoint - 3) + oldInputString.substring(deletionPoint, oldInputString.length);
+            this.#inputDisplay.value = newInputString;
+            this.#inputDisplay.setSelectionRange(deletionPoint - 3, deletionPoint - 3);
+          } else {
+            newInputString = oldInputString.substring(0, deletionPoint - 1) + oldInputString.substring(deletionPoint, oldInputString.length);
+            this.#inputDisplay.value = newInputString;
+            this.#inputDisplay.setSelectionRange(deletionPoint - 1, deletionPoint - 1);
+          }
+        } else {
+          newInputString = oldInputString.substring(0, deletionPoint - 1) + oldInputString.substring(deletionPoint, oldInputString.length);
+          this.#inputDisplay.value = newInputString;
+          this.#inputDisplay.setSelectionRange(deletionPoint - 1, deletionPoint - 1);
+        }
       }
     }
   }
@@ -72,22 +94,36 @@ class Calculator {
     if (!this.#calcWindowList.isFinishedCalcWindow()) {
       let currentSelectionIndex = this.#inputDisplay.selectionStart;
       if (currentSelectionIndex !== 0) {
-        this.#inputDisplay.setSelectionRange(currentSelectionIndex - 1, currentSelectionIndex - 1);
+        if (currentSelectionIndex >= 3) {
+          if (this.#inputDisplay.value.substring(currentSelectionIndex - 3, currentSelectionIndex).toLowerCase() === 'ans') {
+            this.#inputDisplay.setSelectionRange(currentSelectionIndex - 3, currentSelectionIndex - 3);
+          } else {
+            this.#inputDisplay.setSelectionRange(currentSelectionIndex - 1, currentSelectionIndex - 1);
+          }
+        
+        } else {
+          this.#inputDisplay.setSelectionRange(currentSelectionIndex - 1, currentSelectionIndex - 1);
+        }
       }
     } else {
       this.#calcWindowList.goToEndCalcWindow(this.#inputDisplay.value);
       this.clearOutputDisplay();
       this.makeInputDisplayEditable();
-      this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length - 1, this.#inputDisplay.value.length - 1);
+      this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length, this.#inputDisplay.value.length);
       this.disableStorage();
     }
   }
 
   goRight() {
     if (!this.#calcWindowList.isFinishedCalcWindow()) {
-      let currentSelectionIndex = this.#inputDisplay.selectionStart;
-      if (currentSelectionIndex !== this.#inputDisplay.value.length) {
-        this.#inputDisplay.setSelectionRange(currentSelectionIndex + 1, currentSelectionIndex + 1);
+      const inputLength = this.#inputDisplay.value.length;
+      const currentSelectionIndex = this.#inputDisplay.selectionStart;
+      if (currentSelectionIndex !== inputLength) {
+        if (((inputLength - currentSelectionIndex) >= 3) && (this.#inputDisplay.value.substring(currentSelectionIndex, currentSelectionIndex + 3).toLowerCase() === 'ans')) {
+          this.#inputDisplay.setSelectionRange(currentSelectionIndex + 3, currentSelectionIndex + 3);
+        } else {
+          this.#inputDisplay.setSelectionRange(currentSelectionIndex + 1, currentSelectionIndex + 1);
+        }
       }
     } else {
       this.#calcWindowList.goToEndCalcWindow(this.#inputDisplay.value);
@@ -115,6 +151,14 @@ class Calculator {
           }
         }
       }
+      inputString = inputString.toLowerCase();
+      if (inputString.includes('ans')) {
+        if (this.#ans === null) {
+          throw new Error("ANS has not been assigned a value");
+        }
+        const replaceWith = '(' + (this.#ans.toString()) + ')';
+        inputString = inputString.replaceAll('ans', replaceWith);
+      }
       result = evaluate(inputString);
       this.#calcWindowList.setOutputValue(result);
       this.#calcWindowList.setInputString(this.#inputDisplay.value);
@@ -122,6 +166,7 @@ class Calculator {
       this.#calcWindowList.append();
       this.makeInputDisplayReadOnly();
       this.disableStorage();
+      this.#ans = result;
     } catch (error) {
       result = error.message;
     }
@@ -1353,6 +1398,7 @@ function initializePage() {
   document.addEventListener('keyup', (e) => {if (e.key === 'ArrowRight' && calculator.isFinishedCalcWindow()) calculator.goRight()});
   document.addEventListener('keydown', (e) => {if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault()});
   document.addEventListener('keydown', (e) => {if (calculator.isValidInputChar(e.key) && calculator.isFinishedCalcWindow()) {e.preventDefault(); calculator.addInput(e.key);}});
+  document.addEventListener('keydown', (e) => {if (e.key === 'a' || e.key === 'A') {e.preventDefault(); calculator.addInput('ANS');}});
   document.querySelector('#store-variable-button').addEventListener('click', () => calculator.toggleStorage());
   document.addEventListener('keyup', (e) => {if ((e.key === 'S' || e.key === 's') && calculator.isFinishedCalcWindow()) {e.preventDefault(); calculator.toggleStorage();}});
   let variableButtons = document.querySelectorAll('.variable-button');
