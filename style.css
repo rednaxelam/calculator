@@ -44,11 +44,11 @@ body {
   color: white;
 }
 
-.storage-inactive {
+.storage-inactive, .change-format-enabled {
   background-color: lightgrey;
   color: black;
 }
 
-.storage-disabled {
+.storage-disabled, .change-format-disabled {
   background-color: rgba(0, 0, 0, 0.1);
 }

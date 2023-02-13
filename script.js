@@ -198,12 +198,15 @@ class Calculator {
       this.#outputDisplay.removeChild(this.#outputDisplay.firstChild);
     }
     this.#outputDisplay.appendChild(createElement('p'));
+    document.querySelector('#change-output-format-button').classList.remove('change-format-enabled');
+    document.querySelector('#change-output-format-button').classList.add('change-format-disabled');
   }
 
   setOutputDisplay(outputString) {
+    this.clearOutputDisplay();
     this.#outputDisplay.removeChild(this.#outputDisplay.firstElementChild);
     if (this.#calcWindowList.isFinishedCalcWindow() && outputString.includes('/')) {
-      let resultElement = createElement('div', {'style': 'display: flex'});
+      let resultElement = createElement('div', {'style': 'display: flex; align-items: center;'});
       let numComponents = outputString.split(' / ');
       let hasMinusChar = numComponents[0].includes('-');
       if (hasMinusChar) {
@@ -220,15 +223,88 @@ class Calculator {
       fractionalComponent.append(numerator, denominator);
       resultElement.appendChild(fractionalComponent);
       this.#outputDisplay.appendChild(resultElement);
+      document.querySelector('#change-output-format-button').classList.remove('change-format-disabled');
+      document.querySelector('#change-output-format-button').classList.add('change-format-enabled');
+      document.querySelector('#change-output-format-button').setAttribute('data-format-value', '1');
     } else {
       let resultElement = createElement('p');
       resultElement.textContent = outputString;
       this.#outputDisplay.appendChild(resultElement);
+      document.querySelector('#change-output-format-button').classList.remove('change-format-enabled');
+      document.querySelector('#change-output-format-button').classList.add('change-format-disabled');
+      document.querySelector('#change-output-format-button').removeAttribute('data-format-value');
     }
   }
 
   changeFormat() {
+    let formatButton = document.querySelector('#change-output-format-button');
+    if (formatButton.classList.contains('change-format-disabled')) {
+      return;
+    } else {
+      let resultString = this.#calcWindowList.getOutputValue().toString();
+      let resultElement = createElement('div', {'style': 'display: flex; align-items: center;'});
+      let numComponents = resultString.split(' / ');
+      let hasMinusChar = numComponents[0].includes('-');
+      if (hasMinusChar) {
+        numComponents[0] = numComponents[0].substring(1, numComponents[0].length);
+        let minusElement = createElement('div');
+        minusElement.textContent = '-';
+        resultElement.appendChild(minusElement);
+      }
 
+      let continueFlag = false;
+      if (formatButton.getAttribute('data-format-value') === '1') {
+        if (Number(numComponents[0]) < Number(numComponents[1])) {
+          continueFlag = true;
+        } else {
+          let integerPart = `${Math.floor(Number(numComponents[0]) / Number(numComponents[1]))}`;
+          let integerElement = createElement('div');
+          integerElement.textContent = integerPart;
+          resultElement.appendChild(integerElement);
+
+          numComponents[0] = `${Number(numComponents[0]) % Number(numComponents[1])}`;
+          let fractionalComponent = createElement('div', {'style': 'display: flex; flex-direction: column; align-items: stretch;'});
+          let numerator = createElement('div', {'style': 'border-bottom: 1px solid black; text-align: center;'});
+          numerator.textContent = numComponents[0];
+          let denominator = createElement('div', {'style': 'text-align: center;'});
+          denominator.textContent = numComponents[1];
+          fractionalComponent.append(numerator, denominator);
+
+          resultElement.appendChild(fractionalComponent);
+          continueFlag = false;
+        }
+      }
+      if (formatButton.getAttribute('data-format-value') === '2' || continueFlag) {
+        let decimalValue = `${Number(numComponents[0]) / Number(numComponents[1])}`
+        let decimalValueElement = createElement('div');
+        decimalValueElement.textContent = decimalValue;
+        resultElement.appendChild(decimalValueElement);
+      }
+      if (formatButton.getAttribute('data-format-value') === '3') {
+        let fractionalComponent = createElement('div', {'style': 'display: flex; flex-direction: column; align-items: stretch;'});
+        let numerator = createElement('div', {'style': 'border-bottom: 1px solid black; text-align: center;'});
+        numerator.textContent = numComponents[0];
+        let denominator = createElement('div', {'style': 'text-align: center;'});
+        denominator.textContent = numComponents[1];
+        fractionalComponent.append(numerator, denominator);
+        resultElement.appendChild(fractionalComponent);
+      }
+
+      this.clearOutputDisplay();
+      document.querySelector('#change-output-format-button').classList.remove('change-format-disabled');
+      document.querySelector('#change-output-format-button').classList.add('change-format-enabled');
+      this.#outputDisplay.removeChild(this.#outputDisplay.firstElementChild);
+      this.#outputDisplay.appendChild(resultElement);
+
+
+      if (formatButton.getAttribute('data-format-value') === '2' || continueFlag) {
+        formatButton.setAttribute('data-format-value', '3');
+      } else if (formatButton.getAttribute('data-format-value') === '3') {
+        formatButton.setAttribute('data-format-value', '1');
+      } else {
+        formatButton.setAttribute('data-format-value', '2');
+      }
+    }
   }
 
   makeInputDisplayReadOnly() {
@@ -1445,6 +1521,9 @@ function initializePage() {
   document.addEventListener('keydown', (e) => {if (e.key === 'a' || e.key === 'A') {e.preventDefault(); calculator.addInput('ANS');}});
   document.querySelector('#store-variable-button').addEventListener('click', () => calculator.toggleStorage());
   document.addEventListener('keyup', (e) => {if ((e.key === 'S' || e.key === 's') && calculator.isFinishedCalcWindow()) {e.preventDefault(); calculator.toggleStorage();}});
+  document.querySelector('#change-output-format-button').addEventListener('click', () => calculator.changeFormat());
+  document.addEventListener('keyup', (e) => {if ((e.key === 'f' || e.key === 'F') && calculator.isFinishedCalcWindow()) {e.preventDefault(); calculator.changeFormat();}});
+
   let variableButtons = document.querySelectorAll('.variable-button');
   for (let i = 0; i < variableButtons.length; i++) {
     const current = variableButtons.item(i);
