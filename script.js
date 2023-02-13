@@ -1404,7 +1404,7 @@ class Real {
 
   constructor(value) {
     if (typeof value !== "number") throw new Error("real constructor must have a number argument");
-    if (value >= Number.MAX_VALUE) throw new Error("number overflow (number is too large)");
+    if (value >= Number.MAX_VALUE) throw new Error("Number overflow/underflow");
     if (-value >= Number.MAX_VALUE) throw new Error("number underflow (negative number is too large)");
 
     this.#value = value;
