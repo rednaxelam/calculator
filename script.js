@@ -163,7 +163,7 @@ class Calculator {
       for (let i = 0; i < Calculator.#validVariableChars.length; i++) {
         let char = Calculator.#validVariableChars[i];
         if (inputString.includes(char)) {
-          if (this[`#${char.toLowerCase()}`] === null) {
+          if (this[`#${char.toLowerCase()}`] === undefined) {
             throw new Error(`Variable ${char} does not store a value`);
           } else {
             const replaceWith = '(' + (this[`#${char.toLowerCase()}`].toString()) + ')';
@@ -174,7 +174,7 @@ class Calculator {
       inputString = inputString.toLowerCase();
       if (inputString.includes('ans')) {
         if (this.#ans === null) {
-          throw new Error("ANS has not been assigned a value");
+          throw new Error("ANS does not currently store a value");
         }
         const replaceWith = '(' + (this.#ans.toString()) + ')';
         inputString = inputString.replaceAll('ans', replaceWith);
