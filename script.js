@@ -725,7 +725,9 @@ function tokenizeExpression(str) {
     
     if (!numericChars.has(currentChar)) {
       if (numberStringActive) {
-        if (numericExtraChars.has(currentChar)) {
+        if (currentChar === '+' && str.charAt(currentIndex - 1) === 'e') {
+          numberString += currentChar;
+        } else if (currentChar === 'e') {
           numberString += currentChar;
         } else if (dotCounter > 1) {
           throw new Error(`Invalid token: ${numberString}`)
