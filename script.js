@@ -202,9 +202,33 @@ class Calculator {
 
   setOutputDisplay(outputString) {
     this.#outputDisplay.removeChild(this.#outputDisplay.firstElementChild);
-    let resultElement = createElement('p');
-    resultElement.textContent = outputString;
-    this.#outputDisplay.appendChild(resultElement);
+    if (this.#calcWindowList.isFinishedCalcWindow() && outputString.includes('/')) {
+      let resultElement = createElement('div', {'style': 'display: flex'});
+      let numComponents = outputString.split(' / ');
+      let hasMinusChar = numComponents[0].includes('-');
+      if (hasMinusChar) {
+        numComponents[0] = numComponents[0].substring(1, numComponents[0].length);
+        let minusElement = createElement('div');
+        minusElement.textContent = '-';
+        resultElement.appendChild(minusElement);
+      }
+      let fractionalComponent = createElement('div', {'style': 'display: flex; flex-direction: column; align-items: stretch;'});
+      let numerator = createElement('div', {'style': 'border-bottom: 1px solid black; text-align: center;'});
+      numerator.textContent = numComponents[0];
+      let denominator = createElement('div', {'style': 'text-align: center;'});
+      denominator.textContent = numComponents[1];
+      fractionalComponent.append(numerator, denominator);
+      resultElement.appendChild(fractionalComponent);
+      this.#outputDisplay.appendChild(resultElement);
+    } else {
+      let resultElement = createElement('p');
+      resultElement.textContent = outputString;
+      this.#outputDisplay.appendChild(resultElement);
+    }
+  }
+
+  changeFormat() {
+
   }
 
   makeInputDisplayReadOnly() {
