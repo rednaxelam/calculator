@@ -135,10 +135,30 @@ class Calculator {
   }
 
   evaluateInput() {
-    if (this.#calcWindowList.isFinishedCalcWindow()) return;
+    
+    let inputString = this.#inputDisplay.value;
+    
+    if (this.#calcWindowList.isFinishedCalcWindow()) {
+      let canEvaluateAgain = false;
+      for (const char of Calculator.#validVariableChars) {
+        if (inputString.includes(char)) {
+          canEvaluateAgain = true;
+        }
+      }
+      if (inputString.toLowerCase().includes('ans')) {
+        canEvaluateAgain = true;
+      }
+
+      if (!canEvaluateAgain) {
+        return;
+      } else {
+        this.#calcWindowList.goToEndCalcWindow(this.#inputDisplay.value);
+        this.clearOutputDisplay();
+        this.#inputDisplay.value = this.#calcWindowList.getInputString();
+      }
+    }
 
     let result = null;
-    let inputString = this.#inputDisplay.value;
     try {
       for (let i = 0; i < Calculator.#validVariableChars.length; i++) {
         let char = Calculator.#validVariableChars[i];
