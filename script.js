@@ -355,6 +355,9 @@ class Calculator {
 
   goToBeforeCalcWindow() {
     if (this.hasBeforeCalcWindow()) {
+      if (!this.#calcWindowList.isFinishedCalcWindow()) {
+        this.#calcWindowList.setInputString(this.#inputDisplay.value);
+      }
       this.#calcWindowList.goToBeforeCalcWindow();
       this.makeInputDisplayReadOnly();
       this.#inputDisplay.value = this.#calcWindowList.getInputString();
