@@ -1534,6 +1534,7 @@ function initializePage() {
   document.querySelector('#go-right-button').addEventListener('click', () => calculator.goRight());
   document.querySelector('#store-variable-button').addEventListener('click', () => calculator.toggleStorage());
   document.querySelector('#change-output-format-button').addEventListener('click', () => calculator.changeFormat());
+  document.querySelector('#display-input').addEventListener('click', (e) => {if (calculator.isFinishedCalcWindow()) {e.preventDefault(); calculator.goRight()}});
   document.addEventListener('keydown', (e) => {
     e.preventDefault();
     if (e.key === 'ArrowLeft') calculator.goLeft();
