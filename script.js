@@ -17,7 +17,7 @@ class Calculator {
     if (!this.#calcWindowList.isFinishedCalcWindow()) {
       this.clearOutputDisplay()
       let insertionPoint = this.#inputDisplay.selectionStart;
-      if (insertionPoint + input.length >= 27) return;
+      if (this.#inputDisplay.value.length + input.length >= 27) return;
       let oldInputString = this.#inputDisplay.value;
       let newInputString = '';
       if (insertionPoint === 0) {
