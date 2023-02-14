@@ -459,6 +459,10 @@ class Calculator {
     this[`#${varChar}`.toLowerCase()] = this.#calcWindowList.getOutputValue();
     let assignmentText = createElement('p');
     assignmentText.textContent = `${varChar} = `;
+    assignmentText.setAttribute('data-variable-assignment-string', 'true');
+    if (this.#outputDisplay.firstElementChild.hasAttribute('data-variable-assignment-string')) {
+      this.#outputDisplay.removeChild(this.#outputDisplay.firstElementChild);
+    }
     this.#outputDisplay.insertBefore(assignmentText, this.#outputDisplay.firstElementChild);
     this.disableStorage();
   }
