@@ -237,7 +237,11 @@ class Calculator {
       document.querySelector('#change-output-format-button').setAttribute('data-format-value', '1');
     } else {
       let resultElement = createElement('p');
-      resultElement.textContent = outputString;
+      if (this.#calcWindowList.isFinishedCalcWindow() && outputString.includes('e+')) {
+        resultElement.textContent = outputString.replace('e+', '*10^');
+      } else {
+        resultElement.textContent = outputString;
+      }
       this.#outputDisplay.appendChild(resultElement);
       document.querySelector('#change-output-format-button').classList.remove('change-format-enabled');
       document.querySelector('#change-output-format-button').classList.add('change-format-disabled');
