@@ -1551,11 +1551,12 @@ function initializePage() {
     else if (e.key === 'f' || e.key === 'F') calculator.changeFormat();
     else if (calculator.isValidVariableChar(e.key)) calculator.useVariable(e.key.toUpperCase());
     
-  })
+  });
   document.addEventListener('keyup', (e) => {
     e.preventDefault();
     if (e.key === 'Enter') calculator.evaluateInput();
     else if (e.key === 's' || e.key === 'S') calculator.toggleStorage();
     else if (e.key === 'c' || e.key === 'C') calculator.clear();
-  })
+  });
+  document.addEventListener('mousemove', (e) => e.preventDefault());
 }
