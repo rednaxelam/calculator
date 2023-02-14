@@ -15,6 +15,7 @@ class Calculator {
 
   addInput(input) {
     if (!this.#calcWindowList.isFinishedCalcWindow()) {
+      this.clearOutputDisplay()
       let insertionPoint = this.#inputDisplay.selectionStart;
       if (insertionPoint + input.length >= 27) return;
       let oldInputString = this.#inputDisplay.value;
