@@ -33,6 +33,8 @@ body {
 #display-input {
   flex: 1 1 80px;
   border: none;
+  font-family: monospace;
+  font-size: 30px;
 }
 
 #display-output {

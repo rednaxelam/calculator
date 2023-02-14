@@ -16,6 +16,7 @@ class Calculator {
   addInput(input) {
     if (!this.#calcWindowList.isFinishedCalcWindow()) {
       let insertionPoint = this.#inputDisplay.selectionStart;
+      if (insertionPoint + input.length >= 27) return;
       let oldInputString = this.#inputDisplay.value;
       let newInputString = '';
       if (insertionPoint === 0) {
@@ -362,6 +363,10 @@ class Calculator {
     return Calculator.#validInputChars.has(char);
   }
 
+  isValidVariableChar(char) {
+    return Calculator.#validVariableChars.includes(char);
+  }
+
   clear() {
     if (this.#calcWindowList.isFinishedCalcWindow()) {
       this.#calcWindowList.goToEndCalcWindow('');
@@ -423,6 +428,7 @@ class Calculator {
     let assignmentText = createElement('p');
     assignmentText.textContent = `${varChar} = `;
     this.#outputDisplay.insertBefore(assignmentText, this.#outputDisplay.firstElementChild);
+    this.disableStorage();
   }
 
   useVariable(varChar) {
@@ -1504,33 +1510,39 @@ function initializePage() {
     const inputValue = currentButton.getAttribute('data-value');
     currentButton.addEventListener('click', () => calculator.addInput(inputValue));
   }
-  document.querySelector('#backpace-button').addEventListener('click', () => calculator.removeInput());
-  document.querySelector('#clear-button').addEventListener('click', () => calculator.clear());
-  document.querySelector('#clear-all-button').addEventListener('click', () => calculator.clearAll());
-  document.querySelector('#evaluate-button').addEventListener('click', () => calculator.evaluateInput());
-  // document.querySelector('#display-input').addEventListener('change', () => calculator.evaluateInput());
-  document.addEventListener('keyup', (e) => {if (e.key === 'Enter') calculator.evaluateInput()});
-  document.querySelector('#go-left-button').addEventListener('click', () => calculator.goLeft());
-  document.addEventListener('keyup', (e) => {if (e.key === 'ArrowLeft' && calculator.isFinishedCalcWindow()) calculator.goLeft()});
-  document.querySelector('#go-up-button').addEventListener('click', () => calculator.goToBeforeCalcWindow());
-  document.addEventListener('keyup', (e) => {if (e.key === 'ArrowUp') calculator.goToBeforeCalcWindow()});
-  document.querySelector('#go-down-button').addEventListener('click', () => calculator.goToNextCalcWindow());
-  document.addEventListener('keyup', (e) => {if (e.key === 'ArrowDown') calculator.goToNextCalcWindow()});
-  document.querySelector('#go-right-button').addEventListener('click', () => calculator.goRight());
-  document.addEventListener('keyup', (e) => {if (e.key === 'ArrowRight' && calculator.isFinishedCalcWindow()) calculator.goRight()});
-  document.addEventListener('keydown', (e) => {if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault()});
-  document.addEventListener('keydown', (e) => {if (calculator.isValidInputChar(e.key) && calculator.isFinishedCalcWindow()) {e.preventDefault(); calculator.addInput(e.key);}});
-  document.addEventListener('keydown', (e) => {if (e.key === 'a' || e.key === 'A') {e.preventDefault(); calculator.addInput('ANS');}});
-  document.querySelector('#store-variable-button').addEventListener('click', () => calculator.toggleStorage());
-  document.addEventListener('keyup', (e) => {if ((e.key === 'S' || e.key === 's') && calculator.isFinishedCalcWindow()) {e.preventDefault(); calculator.toggleStorage();}});
-  document.querySelector('#change-output-format-button').addEventListener('click', () => calculator.changeFormat());
-  document.addEventListener('keyup', (e) => {if ((e.key === 'f' || e.key === 'F') && calculator.isFinishedCalcWindow()) {e.preventDefault(); calculator.changeFormat();}});
-
   let variableButtons = document.querySelectorAll('.variable-button');
   for (let i = 0; i < variableButtons.length; i++) {
     const current = variableButtons.item(i);
     const variableLetter = current.getAttribute('data-value');
     current.addEventListener('click', () => calculator.useVariable(variableLetter));
-    document.addEventListener('keydown', (e) => {if (e.key === variableLetter.toUpperCase() || e.key === variableLetter.toLowerCase()) {e.preventDefault(); calculator.useVariable(variableLetter);}});
   }
+  document.querySelector('#backpace-button').addEventListener('click', () => calculator.removeInput());
+  document.querySelector('#clear-button').addEventListener('click', () => calculator.clear());
+  document.querySelector('#clear-all-button').addEventListener('click', () => calculator.clearAll());
+  document.querySelector('#evaluate-button').addEventListener('click', () => calculator.evaluateInput());
+  document.querySelector('#go-left-button').addEventListener('click', () => calculator.goLeft());
+  document.querySelector('#go-up-button').addEventListener('click', () => calculator.goToBeforeCalcWindow());
+  document.querySelector('#go-down-button').addEventListener('click', () => calculator.goToNextCalcWindow());
+  document.querySelector('#go-right-button').addEventListener('click', () => calculator.goRight());
+  document.querySelector('#store-variable-button').addEventListener('click', () => calculator.toggleStorage());
+  document.querySelector('#change-output-format-button').addEventListener('click', () => calculator.changeFormat());
+  document.addEventListener('keydown', (e) => {
+    e.preventDefault();
+    if (e.key === 'ArrowLeft') calculator.goLeft();
+    else if (e.key === 'ArrowRight') calculator.goRight();
+    else if (e.key === 'ArrowUp') calculator.goToBeforeCalcWindow();
+    else if (e.key === 'ArrowDown') calculator.goToNextCalcWindow();
+    else if (e.key === 'Backspace') calculator.removeInput();
+    else if (calculator.isValidInputChar(e.key)) calculator.addInput(e.key);
+    else if (e.key === 'a' || e.key === 'A') calculator.addInput('ANS');
+    else if (e.key === 'f' || e.key === 'F') calculator.changeFormat();
+    else if (calculator.isValidVariableChar(e.key)) calculator.useVariable(e.key.toUpperCase());
+    
+  })
+  document.addEventListener('keyup', (e) => {
+    e.preventDefault();
+    if (e.key === 'Enter') calculator.evaluateInput();
+    else if (e.key === 's' || e.key === 'S') calculator.toggleStorage();
+    else if (e.key === 'c' || e.key === 'C') calculator.clear();
+  })
 }
