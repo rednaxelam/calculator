@@ -89,6 +89,13 @@ class Calculator {
           this.#inputDisplay.setSelectionRange(deletionPoint - 1, deletionPoint - 1);
         }
       }
+    } else {
+      this.#calcWindowList.goToEndCalcWindow(this.#calcWindowList.getInputString());
+      this.clearOutputDisplay();
+      this.makeInputDisplayEditable();
+      this.#inputDisplay.setSelectionRange(this.#inputDisplay.value.length, this.#inputDisplay.value.length);
+      this.disableStorage();
+      this.removeInput();
     }
   }
 
