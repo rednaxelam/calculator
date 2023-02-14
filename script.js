@@ -50,12 +50,29 @@ class Calculator {
     }
   }
 
-  // add support for ans later
   removeInput() {
+    let oldInputString = this.#inputDisplay.value;
+    let newInputString = '';
     if (!this.#calcWindowList.isFinishedCalcWindow()) {
+      if (this.#inputDisplay.selectionEnd !== this.#inputDisplay.selectionStart) {
+        let selectionStart = this.#inputDisplay.selectionStart;
+        let selectionEnd = this.#inputDisplay.selectionEnd;
+        if (selectionStart === 0 && selectionEnd === oldInputString.length) {
+          newInputString = '';
+        } else if (selectionStart === 0) {
+          newInputString = oldInputString.substring(selectionEnd, oldInputString.length);
+        } else if (selectionEnd === oldInputString.length) {
+          newInputString = oldInputString.substring(0, selectionStart);
+        } else {
+          newInputString = oldInputString.substring(0, selectionStart) + oldInputString.substring(selectionEnd, oldInputString.length);
+        }
+        this.#inputDisplay.value = newInputString;
+        this.#inputDisplay.setSelectionRange(selectionStart, selectionStart);
+        return;
+      }
+      
       let deletionPoint = this.#inputDisplay.selectionStart;
-      let oldInputString = this.#inputDisplay.value;
-      let newInputString = '';
+      
       if (deletionPoint === 0) {
 
       } else if (deletionPoint === oldInputString.length) {
