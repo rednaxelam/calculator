@@ -1,11 +1,31 @@
 body {
   margin: 0px;
   min-height: 100vh;
+  background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 p {
   margin: 0px;
 }
+
+button {
+  transition: 100ms;
+}
+
+button:active {
+  -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+  -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+  box-shadow: inset 0px 0px 5px #c1c1c1;
+  outline: none;
+}
+
+button:hover {
+  background-color: #ffffffef;
+}
+
 
 #calculator-container {
   font-family: monospace;
@@ -15,12 +35,12 @@ p {
 
 #calculator {
   width: 600px;
-  height: 750px;
-  border: 1px solid black;
+  height: 740px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  margin-top: 50px;
+  margin: 20px 0px;
+  background: rgba(255, 255, 255, .5);
 }
 
 #display-container {
@@ -36,6 +56,7 @@ p {
 #change-output-format-button {
   margin-bottom: 50px;
   font-size: 20px;
+  width: 30px;
 }
 
 #display {
@@ -54,6 +75,8 @@ p {
   border: none;
   font-family: monospace;
   font-size: 30px;
+  padding-left: 10px;
+  background-color: #ffffff6b;
 }
 
 input:focus-visible {
@@ -68,6 +91,7 @@ input:focus-visible {
   justify-content: flex-end;
   padding: 10px;
   color: blue;
+  background-color: #ffffff6b;
 }
 
 #calculator-buttons-container {
@@ -98,6 +122,9 @@ input:focus-visible {
   flex: 1 1 60px;
   height: 45px;
   font-size: 20px;
+  background-color: #ffffffb4;
+  border-width: 0px;
+  border-radius: 5px;
 }
 
 .storage-active {
@@ -105,19 +132,42 @@ input:focus-visible {
   color: white;
 }
 
+.storage-active:hover {
+  background-color: blue;
+}
+
 .storage-inactive, .change-format-enabled {
-  background-color: lightgrey;
-  color: black;
+  background-color: #ffffffb4;
+  border-radius: 5px;
+  border: none;
 }
 
 .storage-disabled, .change-format-disabled {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0);
+  border: 2px solid #ffffffb4;
+  color: black;
+  border-radius: 5px;
+}
+
+.storage-disabled:active, .change-format-disabled:active {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0);
+}
+
+.storage-disabled:hover, .change-format-disabled:hover {
+  background-color: rgba(255, 255, 255, 0);
 }
 
 #backpace-button {
   flex: 2 1 120px;
   height: 45px;
   font-size: 20px;
+  background-color: #ffffffb4;
+  border-width: 0px;
+  border-radius: 5px;
 }
 
 #navigation-buttons {
@@ -125,6 +175,7 @@ input:focus-visible {
   flex: 1 1 0;
   height: 100px;
   width: 160px;
+  
 }
 
 #navigation-buttons-middle {
@@ -136,10 +187,41 @@ input:focus-visible {
 #go-left-button, #go-right-button, #go-up-button, #go-down-button {
   flex: 1 1 0;
   font-size: 25px;
+  background-color: #ffffffb4;
+  border-width: 0px;
+}
+
+#go-left-button {
+  border-radius: 5px 0px 0px 5px;
+  border-right: 1px solid black;
+}
+
+#go-up-button {
+  border-bottom: 1px solid black;
+}
+
+#go-right-button {
+  border-radius: 0px 5px 5px 0px;
+  border-left: 1px solid black;
 }
 
 .rotate {
   transform: rotate(90deg);
+}
+
+#go-left-button, #go-right-button, #go-up-button, #go-down-button, #backpace-button, #evaluate-button {
+  transition: 100ms;
+}
+
+#go-left-button:active, #go-right-button:active, #go-up-button:active, #go-down-button:active, #backpace-button:active, #evaluate-button:active {
+  -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+  -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+  box-shadow: inset 0px 0px 5px #c1c1c1;
+  outline: none;
+}
+
+#go-left-button:hover, #go-right-button:hover, #go-up-button:hover, #go-down-button:hover, #backpace-button:hover, #evaluate-button:hover {
+  background-color: #ffffffef;
 }
 
 #input-buttons-container {
@@ -155,7 +237,9 @@ input:focus-visible {
   display: flex;
   justify-content: flex-start;
   gap: 10px;
+  
 }
+
 
 #input-buttons-right {
   flex: 2 1 0;
@@ -169,4 +253,7 @@ input:focus-visible {
   flex: 1 1 80px;
   height: 80px;
   font-size: 25px;
+  background-color: #ffffffb4;
+  border-width: 0px;
+  border-radius: 5px;
 }
