@@ -11,55 +11,63 @@
 <body>
   <div id="calculator-container">
     <div id="calculator">
-      <div id="display">
-        <input onblur="this.focus()" autofocus type="text" id="display-input" spellcheck="false">
-        <div id="display-output"><p></p></div>
-      </div>
-      <button id="change-output-format-button" class="change-format-disabled">F</button>
-      <div id="toolbar">
-        <div id="storage-panel">
-          <button id="store-variable-button" class="small-button storage-disabled">STO</button>
-          <button class="variable-button small-button" data-value="X">X</button>
-          <button class="variable-button small-button" data-value="Y">Y</button>
-          <button class="variable-button small-button" data-value="Z">Z</button>
+      <div id="display-container">
+        <div class="empty-div"></div>
+        <div id="display">
+          <input onblur="this.focus()" autofocus type="text" id="display-input" spellcheck="false">
+          <div id="display-output"><p></p></div>
         </div>
-        <div id="navigation-buttons">
-          <button id="go-left-button">←</button>
-          <div id="navigation-buttons-middle">
-            <button id="go-up-button">↑</button>
-            <button id="go-down-button">↓</button>
+        <button id="change-output-format-button" class="change-format-disabled">F</button>
+      </div>
+      
+      <div id="calculator-buttons-container">
+        <div id="toolbar">
+          <div id="storage-panel">
+            <button id="store-variable-button" class="small-button storage-disabled">STO</button>
+            <button class="variable-button small-button" data-value="X">X</button>
+            <button class="variable-button small-button" data-value="Y">Y</button>
+            <button class="variable-button small-button" data-value="Z">Z</button>
           </div>
-          <button id="go-right-button">→</button>
+          <div id="navigation-buttons">
+            <button id="go-left-button">&lt</button>
+            <div id="navigation-buttons-middle">
+              <button id="go-up-button"><div class="rotate">&lt</div></button>
+              <button id="go-down-button"><div class="rotate">&gt</div></button>
+            </div>
+            <button id="go-right-button">&gt</button>
+          </div>
+          <div id="right-toolbar-panel">
+            <button id="clear-button" class="small-button">C</button>
+            <button id="clear-all-button" class="small-button">CA</button>
+            <button id="backpace-button">BACKSPACE</button>
+          </div>
         </div>
-        <div id="right-toolbar-panel">
-          <button id="clear-button" class="small-button">C</button>
-          <button id="clear-all-button" class="small-button">CA</button>
-          <button id="backpace-button">BACKSPACE</button>
+        <div id="input-buttons-container">
+          <div id="input-buttons-left">
+            <button class="input-button" data-value="1">1</button>
+            <button class="input-button" data-value="2">2</button>
+            <button class="input-button" data-value="3">3</button>
+            <button class="input-button" data-value="4">4</button>
+            <button class="input-button" data-value="5">5</button>
+            <button class="input-button" data-value="6">6</button>
+            <button class="input-button" data-value="7">7</button>
+            <button class="input-button" data-value="8">8</button>
+            <button class="input-button" data-value="9">9</button>
+            <button class="input-button" data-value="0">0</button>
+            <button class="input-button" data-value=".">.</button>
+            <button class="input-button" data-value=" ">_</button>
+          </div>
+          <div id="input-buttons-right">
+            <button class="input-button" data-value="(">(</button>
+            <button class="input-button" data-value=")">)</button>
+            <button class="input-button" data-value="+">+</button>
+            <button class="input-button" data-value="-">-</button>
+            <button class="input-button" data-value="/">/</button>
+            <button class="input-button" data-value="*">*</button>
+            <button class="input-button" data-value="ANS">ANS</button>
+            <button id="evaluate-button">=</button>
+          </div>
         </div>
-      </div>
-      <div id="left-buttons">
-        <button class="input-button" data-value="1">1</button>
-        <button class="input-button" data-value="2">2</button>
-        <button class="input-button" data-value="3">3</button>
-        <button class="input-button" data-value="4">4</button>
-        <button class="input-button" data-value="5">5</button>
-        <button class="input-button" data-value="6">6</button>
-        <button class="input-button" data-value="7">7</button>
-        <button class="input-button" data-value="8">8</button>
-        <button class="input-button" data-value="9">9</button>
-        <button class="input-button" data-value="0">0</button>
-        <button class="input-button" data-value=".">.</button>
-        <button class="input-button" data-value=" ">_</button>
-      </div>
-      <div id="right-buttons">
-        <button class="input-button" data-value="(">(</button>
-        <button class="input-button" data-value=")">)</button>
-        <button class="input-button" data-value="+">+</button>
-        <button class="input-button" data-value="-">-</button>
-        <button class="input-button" data-value="/">/</button>
-        <button class="input-button" data-value="*">*</button>
-        <button class="input-button" data-value="ANS">ANS</button>
-        <button id="evaluate-button">=</button>
       </div>
     </div>
   </div>

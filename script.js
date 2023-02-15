@@ -458,7 +458,7 @@ class Calculator {
   storeInVariable(varChar) {
     this[`#${varChar}`.toLowerCase()] = this.#calcWindowList.getOutputValue();
     let assignmentText = createElement('p');
-    assignmentText.textContent = `${varChar} = `;
+    assignmentText.textContent = `${varChar.toUpperCase()}=`;
     assignmentText.setAttribute('data-variable-assignment-string', 'true');
     if (this.#outputDisplay.firstElementChild.hasAttribute('data-variable-assignment-string')) {
       this.#outputDisplay.removeChild(this.#outputDisplay.firstElementChild);
