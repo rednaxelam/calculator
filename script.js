@@ -257,9 +257,15 @@ class Calculator {
       document.querySelector('#change-output-format-button').setAttribute('data-format-value', '1');
     } else {
       let resultElement = createElement('p');
+      let outputComponents = null;
       if (this.#calcWindowList.isFinishedCalcWindow()) {
-        let outputComponents = outputString.split('e+');
-        outputComponents = outputString.split('e-');
+        if (outputString.includes('e+')) {
+          outputComponents = outputString.split('e+');
+        } else if (outputString.includes('e-')) {
+          outputComponents = outputString.split('e-');
+        } else {
+          outputComponents = [outputString];
+        }
         if (outputComponents[0].includes('.')) {
           if (outputComponents[0].length >= 16) {
             outputString = `${Number(outputString).toPrecision(14)}`;
@@ -268,14 +274,25 @@ class Calculator {
           outputString = `${Number(outputString).toPrecision(14)}`;
         }
       }
+      
+      let exponentElement = null;
       if (this.#calcWindowList.isFinishedCalcWindow() && outputString.includes('e+')) {
-        resultElement.textContent = outputString.replace('e+', '*10^');
+        outputComponents = outputString.split('e+');
+        resultElement.textContent = outputComponents[0] + '*10';
+        exponentElement = createElement('div', {'style': 'padding-bottom: 20px; font-size: 20px;'});
+        exponentElement.textContent = `${outputComponents[1]}`;
       } else if (this.#calcWindowList.isFinishedCalcWindow() && outputString.includes('e-')) {
-        resultElement.textContent = outputString.replace('e-', '*10^-');
+        outputComponents = outputString.split('e-');
+        resultElement.textContent = outputComponents[0] + '*10';
+        exponentElement = createElement('div', {'style': 'padding-bottom: 20px; font-size: 20px;'});
+        exponentElement.textContent = `-${outputComponents[1]}`;
       } else {
         resultElement.textContent = outputString;
       }
       this.#outputDisplay.appendChild(resultElement);
+      if (exponentElement !== null) {
+        this.#outputDisplay.appendChild(exponentElement);
+      }
       document.querySelector('#change-output-format-button').classList.remove('change-format-enabled');
       document.querySelector('#change-output-format-button').classList.add('change-format-disabled');
       document.querySelector('#change-output-format-button').removeAttribute('data-format-value');
@@ -321,10 +338,19 @@ class Calculator {
         }
       }
       if (formatButton.getAttribute('data-format-value') === '2' || continueFlag) {
+        resultElement = createElement('div', {'style': 'display: flex; align-items: flex-end;'});
         let decimalValue = `${Number(numComponents[0]) / Number(numComponents[1])}`
         let decimalValueElement = createElement('div');
-        let decimalValueComponents = decimalValue.split('e+');
-        decimalValueComponents = decimalValue.split('e-');
+        let decimalValueComponents = null;
+        if (decimalValue.includes('e+')) {
+          decimalValueComponents = decimalValue.split('e+');
+        } else if (decimalValue.includes('e-')) {
+          decimalValueComponents = decimalValue.split('e-');
+        } else {
+          decimalValueComponents = [decimalValue];
+        }
+        
+        
         if (decimalValueComponents[0].includes('.')) {
           if (decimalValueComponents[0].length >= 16) {
             decimalValue = `${Number(decimalValue).toPrecision(14)}`;
@@ -332,14 +358,26 @@ class Calculator {
         } else if (decimalValueComponents[0].length >= 15) {
           decimalValue = `${Number(decimalValue).toPrecision(14)}`;
         }
+
+        let exponentElement = null;
+        
         if (decimalValue.includes('e+')) {
-          decimalValueElement.textContent = decimalValue.replace('e+', '*10^');
+          decimalValueComponents = decimalValue.split('e+');
+          decimalValueElement.textContent = decimalValueComponents[0] + '*10';
+          exponentElement = createElement('div', {'style': 'padding-bottom: 17px; font-size: 20px;'});
+          exponentElement.textContent = `${decimalValueComponents[1]}`;
         } else if (decimalValue.includes('e-')) {
-          decimalValueElement.textContent = decimalValue.replace('e-', '*10^-');
+          decimalValueComponents = decimalValue.split('e-');
+          decimalValueElement.textContent = decimalValueComponents[0] + '*10';
+          exponentElement = createElement('div', {'style': 'padding-bottom: 17px; font-size: 20px;'});
+          exponentElement.textContent = `-${decimalValueComponents[1]}`;
         } else {
           decimalValueElement.textContent = decimalValue;
         }
         resultElement.appendChild(decimalValueElement);
+        if (exponentElement !== null) {
+          resultElement.appendChild(exponentElement);
+        }
       }
       if (formatButton.getAttribute('data-format-value') === '3') {
         let fractionalComponent = createElement('div', {'style': 'display: flex; flex-direction: column; align-items: stretch;'});
