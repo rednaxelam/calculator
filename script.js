@@ -1257,6 +1257,8 @@ class Calculator {
       } else {
         this.#calcWindowList.goToEndCalcWindow(this.#inputDisplay.value);
         this.clearOutputDisplay();
+        this.makeInputDisplayEditable();
+        this.disableStorage();
         this.#inputDisplay.value = this.#calcWindowList.getInputString();
       }
     }
