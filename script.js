@@ -15,7 +15,7 @@ class Calculator {
 
   addInput(input) {
     if (!this.#calcWindowList.isFinishedCalcWindow()) {
-      this.clearOutputDisplay()
+      this.clearOutputDisplay();
       let insertionPoint = this.#inputDisplay.selectionStart;
       if (this.#inputDisplay.value.length + input.length >= 27) return;
       let oldInputString = this.#inputDisplay.value;
@@ -54,6 +54,7 @@ class Calculator {
     let oldInputString = this.#inputDisplay.value;
     let newInputString = '';
     if (!this.#calcWindowList.isFinishedCalcWindow()) {
+      this.clearOutputDisplay();
       if (this.#inputDisplay.selectionEnd !== this.#inputDisplay.selectionStart) {
         let selectionStart = this.#inputDisplay.selectionStart;
         let selectionEnd = this.#inputDisplay.selectionEnd;
@@ -118,6 +119,7 @@ class Calculator {
 
   goLeft() {
     if (!this.#calcWindowList.isFinishedCalcWindow()) {
+      this.clearOutputDisplay();
       let currentSelectionIndex = this.#inputDisplay.selectionStart;
       if (currentSelectionIndex !== 0) {
         if (currentSelectionIndex >= 3) {
@@ -142,6 +144,7 @@ class Calculator {
 
   goRight() {
     if (!this.#calcWindowList.isFinishedCalcWindow()) {
+      this.clearOutputDisplay();
       const inputLength = this.#inputDisplay.value.length;
       const currentSelectionIndex = this.#inputDisplay.selectionStart;
       if (currentSelectionIndex !== inputLength) {

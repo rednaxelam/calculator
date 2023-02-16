@@ -92,6 +92,7 @@ input:focus-visible {
   padding: 10px;
   color: blue;
   background-color: #ffffff6b;
+  text-align: center;
 }
 
 #calculator-buttons-container {
