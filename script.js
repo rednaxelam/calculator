@@ -257,6 +257,17 @@ class Calculator {
       document.querySelector('#change-output-format-button').setAttribute('data-format-value', '1');
     } else {
       let resultElement = createElement('p');
+      if (this.#calcWindowList.isFinishedCalcWindow()) {
+        let outputComponents = outputString.split('e+');
+        outputComponents = outputString.split('e-');
+        if (outputComponents[0].includes('.')) {
+          if (outputComponents[0].length >= 16) {
+            outputString = `${Number(outputString).toPrecision(14)}`;
+          }
+        } else if (outputComponents[0].length >= 15) {
+          outputString = `${Number(outputString).toPrecision(14)}`;
+        }
+      }
       if (this.#calcWindowList.isFinishedCalcWindow() && outputString.includes('e+')) {
         resultElement.textContent = outputString.replace('e+', '*10^');
       } else if (this.#calcWindowList.isFinishedCalcWindow() && outputString.includes('e-')) {
@@ -312,7 +323,22 @@ class Calculator {
       if (formatButton.getAttribute('data-format-value') === '2' || continueFlag) {
         let decimalValue = `${Number(numComponents[0]) / Number(numComponents[1])}`
         let decimalValueElement = createElement('div');
-        decimalValueElement.textContent = decimalValue;
+        let decimalValueComponents = decimalValue.split('e+');
+        decimalValueComponents = decimalValue.split('e-');
+        if (decimalValueComponents[0].includes('.')) {
+          if (decimalValueComponents[0].length >= 16) {
+            decimalValue = `${Number(decimalValue).toPrecision(14)}`;
+          }
+        } else if (decimalValueComponents[0].length >= 15) {
+          decimalValue = `${Number(decimalValue).toPrecision(14)}`;
+        }
+        if (decimalValue.includes('e+')) {
+          decimalValueElement.textContent = decimalValue.replace('e+', '*10^');
+        } else if (decimalValue.includes('e-')) {
+          decimalValueElement.textContent = decimalValue.replace('e-', '*10^-');
+        } else {
+          decimalValueElement.textContent = decimalValue;
+        }
         resultElement.appendChild(decimalValueElement);
       }
       if (formatButton.getAttribute('data-format-value') === '3') {
