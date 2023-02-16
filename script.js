@@ -717,11 +717,19 @@ function tokenizeExpression(str) {
     } else {
       if (numberStr.length === 1) {
         throw new Error(`Invalid number token: ${numberStr}`);
-      } else if (numberStr.includes('e') || numberStr.includes('+')) {
-        if (!numberStr.includes('e+')) {
+      } else if (numberStr.includes('e') || numberStr.includes('+') || numberStr.includes('-')) {
+        if ((!numberStr.includes('e+') && !numberStr.includes('e-'))) {
+          throw new Error(`Invalid number token: ${numberStr}`);
+        } else if (numberStr.includes('e+') && numberStr.includes('e-')) {
           throw new Error(`Invalid number token: ${numberStr}`);
         }
-        let numberComponents = numberStr.split('e+');
+        
+        let numberComponents = null;
+        if (numberStr.includes('e+')) {
+          numberComponents = numberStr.split('e+');
+        } else {
+          numberComponents = numberStr.split('e-');
+        }
         if (numberComponents.length !== 2) {
           throw new Error(`Invalid number token: ${numberStr}`);
         } else if (numberComponents[0].length === 0 || numberComponents[0].length === 0) {
@@ -741,12 +749,12 @@ function tokenizeExpression(str) {
   }
 
   function includesNumericExtraChar(numberStr) {
-    return numberStr.includes('e') || numberStr.includes('+');
+    return numberStr.includes('e') || numberStr.includes('+') || numberStr.includes('-');
   }
 
   const validChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '+', '-', '*', '/', '(', ')', ' ', 'e']);
   const numericChars = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']);
-  const numericExtraChars = new Set(['e', '+']);
+  const numericExtraChars = new Set(['e', '+', '-']);
   const operatorChars = new Set(['+', '-', '*', '/']);
   const parenthesisChars = new Set(['(', ')']);
 
@@ -765,12 +773,15 @@ function tokenizeExpression(str) {
       throw new Error(`Invalid token: ${currentChar}`);
     } 
     
+    let isNumericExtraCharFlag = false;
     if (!numericChars.has(currentChar)) {
       if (numberStringActive) {
-        if (currentChar === '+' && str.charAt(currentIndex - 1) === 'e') {
+        if ((currentChar === '+' || currentChar === '-') && str.charAt(currentIndex - 1) === 'e') {
           numberString += currentChar;
+          isNumericExtraCharFlag = true;
         } else if (currentChar === 'e') {
           numberString += currentChar;
+          isNumericExtraCharFlag = true;
         } else if (dotCounter > 1) {
           throw new Error(`Invalid token: ${numberString}`)
         } else {
@@ -783,7 +794,7 @@ function tokenizeExpression(str) {
         throw new Error(`Invalid token: ${currentChar}`);
       }
       
-      if (operatorChars.has(currentChar)) {
+      if (operatorChars.has(currentChar) && !isNumericExtraCharFlag) {
         tokenList.append(new Operator(currentChar));
       } else if (parenthesisChars.has(currentChar)) {
         tokenList.append(currentChar);
