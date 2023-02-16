@@ -259,6 +259,8 @@ class Calculator {
       let resultElement = createElement('p');
       if (this.#calcWindowList.isFinishedCalcWindow() && outputString.includes('e+')) {
         resultElement.textContent = outputString.replace('e+', '*10^');
+      } else if (this.#calcWindowList.isFinishedCalcWindow() && outputString.includes('e-')) {
+        resultElement.textContent = outputString.replace('e-', '*10^-');
       } else {
         resultElement.textContent = outputString;
       }
