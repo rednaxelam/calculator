@@ -613,7 +613,7 @@ class TokenList {
       if (this.#length === 1) {
         throw new Error("Operator must have argument(s)");
       } else {
-        throw new Error("Binary Operator must have two arguments");
+        throw new Error("Binary operator must have two arguments");
       }
     }
 
@@ -998,7 +998,7 @@ class CalcWindowList {
   }
 
   append() {
-    if (!this.#end.value.isFinishedCalcWindow()) throw new Error("Method should not be called if end CalcWindow is unfinished");
+    if (!this.#end.value.isFinishedCalcWindow()) throw new Error("Append should not be called if end CalcWindow is unfinished");
     let newNode = new Node();
     newNode.value = new CalcWindow();
     this.#end.next = newNode;
@@ -1027,7 +1027,7 @@ class CalcWindowList {
   goToEndCalcWindow(inputString) {
     if (typeof inputString !== "string") throw new Error("String Expected");
     this.#current = this.#end;
-    if (this.#end.value.isFinishedCalcWindow()) throw new Error("Method should not be called if end CalcWindow is finished");
+    if (this.#end.value.isFinishedCalcWindow()) throw new Error("goToEndCalcWindow should not be called if end CalcWindow is finished");
     this.#current.value.setInputString(inputString);
   }
 
