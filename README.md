@@ -1,10 +1,12 @@
+# Calculator
+
 For this project (done as part of The Odin Project Foundations course) I needed to make a calculator, and I ended up adding quite a bit more functionality than was suggested!
 
 The webpage works fairly well when using a modern version of google chrome or firefox on my 22″ 1920x1080 desktop monitor. I aim to make the page more responsive in the future once I've learned more about mobile and responsive design, but for now you might need to zoom in or out and use a laptop or desktop to use the calculator. 
 
 The calculator should hopefully be fairly intuitive for those with experience of using scientific calculators. You can refer to the text below for more information on how the calculator works and how to use it. Also please note that the calculator does not understand implicit multiplication (for example 2(3+4) will throw an error as it will see this as two consecutive numbers). You can view the calculator via the following link: https://rednaxelam.github.io/calculator/
 
-##More Information
+## More Information
 
 The calculator uses a simple interpreter made by myself that takes a string as input, and returns a number as output. You can specify the input string by pressing input buttons or using keypresses. Upon hitting enter or the = button, the string that you've supplied (representing a mathematical expression) will be fed into the interpreter. If the expression supplied is invalid (can't be interpreted in a meaningful way by the interpreter), then a custom error message is displayed. If this is not the case, then the number returned will be used as the basis for what is displayed to you as output.
 
