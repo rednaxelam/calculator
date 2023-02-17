@@ -1668,6 +1668,10 @@ function initializePage() {
     else if (e.key === 'c' || e.key === 'C') calculator.clear();
   });
   document.addEventListener('mousemove', (e) => e.preventDefault());
+  let inputDisplay = document.querySelector('#display-input');
+  document.addEventListener('click', () => {if (document.activeElement !== inputDisplay) inputDisplay.focus()});
+  document.addEventListener('mouseup', () => {if (document.activeElement !== inputDisplay) inputDisplay.focus()});
+  document.addEventListener('keyup', () => {if (document.activeElement !== inputDisplay) inputDisplay.focus()});
 }
 
 
